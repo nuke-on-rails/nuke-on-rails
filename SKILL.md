@@ -38,8 +38,6 @@ bundle-audit check --format json > "$OUT/bundler-audit.json"         # --update 
                                                                      # make sure the app's Ruby version is still active
 ```
 
-bundler-audit also flags insecure gem sources (`git://`, `http://`) — triage those too.
-
 If an engine fails, degrade gracefully: report which engine was skipped and why, and continue with the others.
 
 ## Step 2 — Decide where to spend context (churn × complexity)
@@ -56,11 +54,7 @@ For every Brakeman warning and every bundler-audit CVE:
 
 Treat Brakeman's confidence level (`High`/`Medium`/`Weak`) as a prior, not a verdict: a `Weak` warning you confirm by reading the code outranks a `High` warning on an unreachable path. And if `config/brakeman.ignore` exists, re-triage every silenced warning — in an unreviewed codebase, an ignore file often means "made CI pass", not "verified safe".
 
-For CVEs, first dedupe results by `(gem name, advisory id)` — a multi-platform `Gemfile.lock` repeats the same advisory once per platform. Use the advisory's `cvss_v3` as the severity prior (it can be null — fall back to `criticality`, then to reading the description) and `patched_versions` as the concrete fix ("bump gem X to ≥ Y"). And be honest about coverage: bundler-audit and ruby_audit check against ruby-advisory-db, a community database that is not exhaustive — an empty result means "no known advisories", never "dependencies are secure". Phrase the report accordingly.
-
-**Day-zero cross-check (network permitting).** ruby-advisory-db lags the official announcements by hours or days — an audit run inside that window misses freshly published CVEs. You are an agent with web access; the gem-based engines are not. Fetch https://www.ruby-lang.org/en/security/ and the latest Rails security announcements, and compare the recent advisories against the app's Ruby and Rails versions. For gem-level day-zero coverage, fetch https://security.snyk.io/vuln/rubygems once — the listing is server-rendered and carries the ~30 newest RubyGems disclosures with the gem name in each slug (`SNYK-RUBY-<GEM>-…`); intersect those names with the `Gemfile.lock` and triage only the matches. Anything announced but not yet absorbed by ruby-advisory-db appears in no engine's output — report it as a day-zero finding with a link to the advisory. These are scrape-based checks: if a page changes shape or you are offline, skip and say so in the report.
-
-**Second-opinion cross-check (network permitting).** For the app's security-critical gems (web server, auth, file/XML parsing — not the whole lockfile), query OSV.dev's free batch API, which aggregates the GitHub Advisory Database and covers what ruby-advisory-db misses: `POST https://api.osv.dev/v1/querybatch` with each gem's name (`"ecosystem": "RubyGems"`) and locked version. A hit that bundler-audit didn't report is a coverage-gap finding — triage it like any other CVE.
+For dependency and Ruby-version CVEs, apply `lenses/cve.md` to the bundler-audit and ruby_audit output — it covers deduping, severity priors, reachability triage, insecure gem sources, and the network cross-checks (day-zero and second-opinion) that close the advisory database's lag and coverage gaps.
 
 Then apply the security lenses — `lenses/authorization.md` (IDOR, missing authorization, attack surface), `lenses/authentication.md` (auth stack, Devise config, custom strategies, sessions) and `lenses/secrets.md` (committed keys and hardcoded credentials) — to the routes file and the sensitive controllers, models and initializers. They cover what Brakeman can't reach. Lenses *cover* those areas; they do not *guarantee* them. Be explicit about that distinction in the report.
 
