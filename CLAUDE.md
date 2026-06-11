@@ -27,6 +27,7 @@ Three deterministic engines + LLM as judge:
 - **Zero-dependency:** the skill installs the engines itself, detects Rails vs. plain Ruby, and degrades gracefully (plain Ruby: rubycritic + bundler-audit run, Brakeman is skipped).
 - **One impact-ranked report**, never tool sections stapled together. An IDOR in a payments controller outranks a fat model; a high-churn fat model outranks a theoretical warning.
 - **Lenses are plain markdown** (`lenses/code-quality.md`, `lenses/authorization.md`, `lenses/authentication.md`, …). The community contributes checks via text-only PRs; the maintainer owns the engine (the RuboCop/cops model).
+- **The canonical source for security lenses is the official Rails Security Guide** (https://guides.rubyonrails.org/security.html) — distill from it, link findings to its sections, and re-check lenses against it on new Rails releases. Prefer it over community checklists, which go stale.
 
 ## Internal docs
 
