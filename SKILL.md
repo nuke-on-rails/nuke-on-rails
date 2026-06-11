@@ -60,6 +60,8 @@ For CVEs, first dedupe results by `(gem name, advisory id)` — a multi-platform
 
 **Day-zero cross-check (network permitting).** ruby-advisory-db lags the official announcements by hours or days — an audit run inside that window misses freshly published CVEs. You are an agent with web access; the gem-based engines are not. Fetch https://www.ruby-lang.org/en/security/ and the latest Rails security announcements, and compare the recent advisories against the app's Ruby and Rails versions. Anything announced but not yet absorbed by the database appears in no engine's output — report it as a day-zero finding with a link to the official advisory. If offline, skip the check and say so in the report.
 
+**Second-opinion cross-check (network permitting).** For the app's security-critical gems (web server, auth, file/XML parsing — not the whole lockfile), query OSV.dev's free batch API, which aggregates the GitHub Advisory Database and covers what ruby-advisory-db misses: `POST https://api.osv.dev/v1/querybatch` with each gem's name (`"ecosystem": "RubyGems"`) and locked version. A hit that bundler-audit didn't report is a coverage-gap finding — triage it like any other CVE.
+
 Then apply the security lenses — `lenses/authorization.md` (IDOR, missing authorization, attack surface), `lenses/authentication.md` (auth stack, Devise config, custom strategies, sessions) and `lenses/secrets.md` (committed keys and hardcoded credentials) — to the routes file and the sensitive controllers, models and initializers. They cover what Brakeman can't reach. Lenses *cover* those areas; they do not *guarantee* them. Be explicit about that distinction in the report.
 
 ## Step 4 — Quality review of the hotspots
