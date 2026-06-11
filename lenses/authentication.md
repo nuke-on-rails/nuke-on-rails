@@ -27,6 +27,7 @@ The default `devise.rb` of a generated app is rarely touched. Check:
 Custom strategies (API token login, impersonation, SSO callbacks) hide in `config/initializers/`. Classic bugs:
 
 - **Token comparison with `==`** instead of `ActiveSupport::SecurityUtils.secure_compare` — timing attack. Worse: `where(token: params[:token])` looks the secret up *by value* — that's a timing oracle in the database. Look up by a non-secret id, then `secure_compare` the token.
+- **Type confusion on secret/credential lookups.** `find_by(token: params[:user][:token])` fed a JSON `{"token": 0}` (or an array/hash) can bypass the check entirely — MySQL coerces the string column to a number and `0` matches any non-numeric token. Coerce the param to String before any secret lookup (`params[...].to_s`) and compare with `secure_compare`; never trust that a param is the scalar type you expect. Invisible to static analysis.
 - **Tokens stored in plain text columns** and/or without expiry; a DB read becomes account takeover. Store a digest, like password hashes.
 - **`success!` on a path that should `fail!`**, or rescue blocks inside the strategy that swallow verification errors into a pass.
 - **Warden scope confusion**: `warden.set_user(user)` on the wrong scope (e.g. granting the `:admin` scope from a user-level flow); impersonation features that never check the impersonator's privilege.
