@@ -82,18 +82,16 @@ Apply `lenses/code-quality.md` — the thermo-nuclear standards, translated to t
 
 ## Step 5 — One impact-ranked report
 
-**Open with a status banner.** A few lines of orientation before the findings: project type and Rails/Ruby versions (note any substitution, e.g. running under a different Ruby), whether git history made the churn quadrant reliable, the engines that ran and their headline counts, and an honest coverage note (what was and wasn't checked, lenses cover but don't guarantee).
+**Open with a short status banner** — just write it, don't print a "Status banner" label. A few lines of orientation: project type and Rails/Ruby versions (note any substitution, e.g. running under a different Ruby), whether git history made the churn quadrant reliable, the engines that ran with headline counts, and one honest line on coverage (lenses cover, they don't guarantee). Give it a dry, deadpan wit — it's a tool named *Nuke on Rails* ("The good news: the app isn't on fire. The bad news: I found the matches."). Humor lives in the framing only; every finding stays sober and precise.
 
-Give the banner a dry, deadpan wit — this is a tool named *Nuke on Rails*, lean into it ("Good news: the app isn't on fire. Bad news: I found the matches."). **Keep the humor in the framing only.** Every finding, severity, and exploit path stays sober and precise: a real IDOR is never a punchline. The tone earns a smile at the top; the verdicts earn trust all the way down.
-
-Then merge everything into a single ordered list. Ranking heuristic:
+Then the findings, as one list ranked by impact:
 
 1. **Confirmed exploitable security findings** (an IDOR in a payments controller outranks everything).
-2. **CVEs in gems** that are actually reachable from the app's usage.
+2. **CVEs** actually reachable from the app's usage.
 3. **High-churn × high-complexity quality hotspots** (a fat model that changes weekly outranks a theoretical warning).
 4. **Theoretical security warnings** that survived triage but lack a demonstrated exploit path.
 5. **Remaining quality findings**, worst first.
 
-For each item: severity, file/line, why it matters in *this* app, and the concrete first step to fix it. End with a short "if you only fix three things" section.
+**Keep each finding tight and scannable.** Lead with a one-line headline: severity, what it is, and where (`file:line`). Then a sentence or two, max, on why it matters here and the concrete fix. Show code only when a few lines make the point faster than words. No multi-paragraph exploit essays: a senior should grasp each finding in seconds and know the next move. Write the way Rails reads — friendly, direct, no ceremony.
 
-The report must read like a plan a principal engineer would hand you — not a tool dump.
+Don't print scaffolding labels ("Status banner", "Findings", "Impact-ranked list"); let the report flow. Close with a short "if you only fix three things" list. The whole thing reads like a plan a principal engineer would hand you, not a tool dump.
