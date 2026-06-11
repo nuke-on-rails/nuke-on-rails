@@ -58,7 +58,7 @@ Treat Brakeman's confidence level (`High`/`Medium`/`Weak`) as a prior, not a ver
 
 For CVEs, first dedupe results by `(gem name, advisory id)` — a multi-platform `Gemfile.lock` repeats the same advisory once per platform. Use the advisory's `cvss_v3` as the severity prior (it can be null — fall back to `criticality`, then to reading the description) and `patched_versions` as the concrete fix ("bump gem X to ≥ Y"). And be honest about coverage: bundler-audit and ruby_audit check against ruby-advisory-db, a community database that is not exhaustive — an empty result means "no known advisories", never "dependencies are secure". Phrase the report accordingly.
 
-Then apply the security lenses — `lenses/authorization.md` (IDOR, missing authorization, attack surface) and `lenses/authentication.md` (auth stack, Devise config, custom strategies, sessions) — to the routes file and the sensitive controllers and models. They cover what Brakeman can't reach. Lenses *cover* those areas; they do not *guarantee* them. Be explicit about that distinction in the report.
+Then apply the security lenses — `lenses/authorization.md` (IDOR, missing authorization, attack surface), `lenses/authentication.md` (auth stack, Devise config, custom strategies, sessions) and `lenses/secrets.md` (committed keys and hardcoded credentials) — to the routes file and the sensitive controllers, models and initializers. They cover what Brakeman can't reach. Lenses *cover* those areas; they do not *guarantee* them. Be explicit about that distinction in the report.
 
 ## Step 4 — Quality review of the hotspots
 
