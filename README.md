@@ -35,6 +35,22 @@ Instead of stapling separate tool reports together, it returns **a single list, 
 
 Scanners list problems. Nuke on Rails decides the order.
 
+## Why not just ask the agent to "review my code"?
+
+You can, and it'll find something. But "review my Rails app" gives a different, shallower answer every time and skips everything a deterministic scanner catches. The difference:
+
+| | Asking an agent to "review my code" | Nuke on Rails |
+|---|---|---|
+| **Scanning** | The model eyeballs whatever files it happens to read | Brakeman parses 100% of the AST; bundler-audit and ruby_audit check every locked gem |
+| **Reproducible** | A different answer every run | Deterministic engines plus a fixed methodology |
+| **Where it looks** | Wherever the model wanders, until context runs out | Churn × complexity picks the hotspots that actually matter |
+| **CVEs & EOL** | Bounded by the training cutoff; can't know yesterday's CVE | Live advisory DB, day-zero web cross-checks, end-of-life detection |
+| **False positives** | Confidently reports plausible-but-wrong issues | Every security finding adversarially verified; unprovable ones flagged "theoretical" |
+| **Coverage** | Whatever it remembers to check that day | A fixed OWASP Top 10 lens catalog, every run |
+| **Output** | A wall of prose | One list ranked by impact, with a fix-now plan |
+
+The LLM still does the part it's good at: reading code paths, explaining exploits, judging severity. It just doesn't do it alone, from memory, and unprioritized.
+
 ## What it catches
 
 Coverage maps to the **OWASP Top 10 2025**. Each area is a [lens](lenses/): a plain-markdown check the audit applies on top of the scanners.
