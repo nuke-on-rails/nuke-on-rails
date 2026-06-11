@@ -19,8 +19,8 @@
 <br />
 
 <p align="center">
+  <a href="#what-it-is">What It Is</a> &nbsp;&bull;&nbsp;
   <a href="#quick-start">Quick Start</a> &nbsp;&bull;&nbsp;
-  <a href="#lenses">Lenses</a> &nbsp;&bull;&nbsp;
   <a href="#who-its-for">Who It's For</a> &nbsp;&bull;&nbsp;
   <a href="#how-it-works">How It Works</a>
 </p>
@@ -29,39 +29,26 @@
 
 ## What it is
 
-**Nuke on Rails** audits your Rails app the way a principal engineer would: it tells you *what to refactor, what's vulnerable, and in what order to fix it.* One open source skill (Claude Code and cross-agent) that runs three battle-tested engines and puts an LLM in the judge's seat.
+**Nuke on Rails** audits your Rails app the way a principal engineer would: it tells you *what to refactor, what's vulnerable, and in what order to fix it.* One open source skill (Claude Code and cross-agent) powered by three battle-tested engines, with an LLM in the judge's seat and a catalog of **lenses** that widen the search to vulnerabilities and improvements no scanner can see:
 
 - **[rubycritic](https://github.com/whitesmith/rubycritic)** for **code quality**. The churn × complexity quadrant decides where attention goes first.
 - **[Brakeman](https://brakemanscanner.org/)** for **security**. The LLM triages every warning: kills false positives, explains the real exploit path.
 - **[bundler-audit](https://github.com/rubysec/bundler-audit)** + **[ruby_audit](https://github.com/civisanalytics/ruby_audit)** for **known CVEs** in your gems and in the Ruby version itself.
-
-Three engines, a stack of lenses, one verdict. Instead of stapling reports together, Nuke on Rails returns **a single list, ranked by impact**. An IDOR in your payments controller outranks a fat model; a high-churn fat model outranks a theoretical warning.
-
-RuboCop, Brakeman and rubycritic **list** problems. Nuke on Rails **decides the order**.
-
-## Lenses
-
-Scanners only catch what they can parse. So on top of them, the LLM applies a catalog of **lenses**: plain-markdown checks that find what static analysis can't, together covering the **OWASP Top 10 2025**.
-
-### 🔒 Security
-
 - **[authorization](lenses/authorization.md)** : IDOR, missing authorization, mass assignment, nested-attribute and form-helper leaks.
 - **[authentication](lenses/authentication.md)** : Devise misconfig, custom Warden strategies, session fixation, timing attacks, throttle bypass.
-- **[secrets](lenses/secrets.md)** : committed keys, hardcoded credentials, `.env` in version control. Rotate-first remedies.
+- **[secrets](lenses/secrets.md)** : committed keys, hardcoded credentials, `.env` in version control.
 - **[cryptography](lenses/cryptography.md)** : encryption oracles, hand-rolled crypto, weak hashing, plaintext sensitive columns.
 - **[hardening](lenses/hardening.md)** : TLS and HSTS, CSP, CSRF config, unauthenticated mounted dashboards, backing-service TLS.
 - **[api](lenses/api.md)** : JSON over-exposure, CORS, GraphQL depth and introspection, XXE, OAuth flows.
 - **[logging](lenses/logging.md)** : sensitive data in logs, missing audit trail on critical events, PII leaking into LLM prompts.
-
-### 📦 Dependencies
-
-- **[cve](lenses/cve.md)** : known CVEs in gems and in the Ruby version, JavaScript deps, day-zero web cross-checks, end-of-life Ruby or Rails.
-
-### 🧹 Code Quality
-
+- **[cve](lenses/cve.md)** : JavaScript deps, day-zero web cross-checks, end-of-life Ruby or Rails versions.
 - **[code-quality](lenses/code-quality.md)** : fat models, callback-driven logic, rug concerns, spaghetti branching. The thermo-nuclear quality bar, translated to Rails.
 
-The maintainer owns the engine; the community grows the catalog. **Contribute a new check with a text-only PR, no code required.**
+The first three are the deterministic engines; the rest are **lenses**, plain-markdown checks covering the OWASP Top 10 2025. The community grows the catalog: a new check is a text-only PR, no code required.
+
+Three engines, a stack of lenses, one verdict. Instead of stapling reports together, Nuke on Rails returns **a single list, ranked by impact**. An IDOR in your payments controller outranks a fat model; a high-churn fat model outranks a theoretical warning.
+
+RuboCop, Brakeman and rubycritic **list** problems. Nuke on Rails **decides the order**.
 
 ## Quick Start
 
