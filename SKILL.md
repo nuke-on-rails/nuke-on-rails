@@ -80,7 +80,9 @@ They cover what Brakeman can't reach. Lenses *cover* those areas; they do not *g
 
 Apply `lenses/code-quality.md` — the thermo-nuclear standards, translated to the Rails idiom — to the hotspot files from Step 2. That lens is the default quality bar for this skill: ambitious structural findings, not cosmetic nits.
 
-## Step 5 — One impact-ranked report
+## Step 5 — The report (output)
+
+This section is the single source of truth for how the report reads: language, tone, structure, and the closing summary. Write the whole report in the user's language (see the top of this file).
 
 **Open with a short status banner** — just write it, don't print a "Status banner" label. A few lines of orientation: project type and Rails/Ruby versions (note any substitution, e.g. running under a different Ruby), whether git history made the churn quadrant reliable, the engines that ran with headline counts, and one honest line on coverage (lenses cover, they don't guarantee). Give it a dry, deadpan wit — it's a tool named *Nuke on Rails* (English example, for tone only: "The good news: the app isn't on fire. The bad news: I found the matches."). **Write the joke natively in the user's language** so it actually lands; never translate the example literally. Humor lives in the framing only; every finding stays sober and precise.
 
@@ -92,6 +94,23 @@ Then the findings, as one list ranked by impact:
 4. **Theoretical security warnings** that survived triage but lack a demonstrated exploit path.
 5. **Remaining quality findings**, worst first.
 
-**Keep each finding tight and scannable.** Lead with a one-line headline: severity, what it is, and where (`file:line`). Then a sentence or two, max, on why it matters here and the concrete fix. Show code only when a few lines make the point faster than words. No multi-paragraph exploit essays: a senior should grasp each finding in seconds and know the next move. Write the way Rails reads — friendly, direct, no ceremony.
+**Keep each finding tight and scannable.** Lead with a one-line headline: severity, what it is, and where (`file:line`). Then a sentence or two, max, on why it matters here and the concrete fix. Show code only when a few lines make the point faster than words. No multi-paragraph exploit essays: a senior should grasp each finding in seconds and know the next move. Write the way Rails reads — friendly, direct, no ceremony. Don't print scaffolding labels ("Status banner", "Findings"); let the report flow.
 
-Don't print scaffolding labels ("Status banner", "Findings", "Impact-ranked list"); let the report flow. Close with a short "if you only fix three things" list. The whole thing reads like a plan a principal engineer would hand you, not a tool dump.
+**Close with a scoreboard and a plan** so the reader leaves with a number and a next move:
+
+1. **A severity scoreboard** — counts at a glance, as a table:
+
+   | Severity | Count |
+   |----------|-------|
+   | 🔴 Critical | … |
+   | 🟠 High | … |
+   | 🟡 Medium | … |
+   | 🟢 Low | … |
+
+   Add a line beneath it for dependency risk (reachable CVEs, e.g. "92 advisories / 24 gems") and any end-of-life flag.
+
+2. **Fix now** — the few highest-impact items, each one line with `file:line` and the move. This is the "if you do nothing else" list.
+3. **Fix next** — the remaining high/medium, grouped tersely.
+4. **Biggest structural multiplier** — one line naming the single refactor that removes the most risk or debt at once.
+
+The whole thing reads like a plan a principal engineer would hand you, not a tool dump.
