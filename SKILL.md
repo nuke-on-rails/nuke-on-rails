@@ -8,9 +8,9 @@ disable-model-invocation: true
 
 A full project health audit for Rails apps: *what to refactor, what's vulnerable, and in what order to attack it*. Three deterministic engines do the scanning; you are the judge. The output is **one single list, prioritized by impact**, never tool sections stapled together.
 
-**Always respond in English**, including the step announcements and the final report, regardless of the language the user writes in. The audience is the global Rails community.
+**Respond in the user's language.** Write the step announcements and the final report in whatever language the user writes in. (These instructions and the lenses are authored in English, but the audit you produce should speak to whoever ran it.)
 
-This audit takes minutes, so announce each step as you begin it and the user sees progress: `🔭 Step 1/5 — installing & running engines…`, `🎯 Step 2 — picking hotspots (churn × complexity)…`, `⚖️ Step 3 — triaging N findings & applying lenses…`, `📋 Step 5 — building the impact-ranked report…`. One short line per step; the visible tool calls fill in the rest.
+This audit takes minutes, so announce each step as you begin it and the user sees progress. The examples below show the format in English; translate them to the user's language: `🔭 Step 1/5 — installing & running engines…`, `🎯 Step 2 — picking hotspots (churn × complexity)…`, `⚖️ Step 3 — triaging N findings & applying lenses…`, `📋 Step 5 — building the impact-ranked report…`. One short line per step; the visible tool calls fill in the rest.
 
 ## Step 0 — Detect the project
 

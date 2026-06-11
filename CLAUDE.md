@@ -10,7 +10,7 @@ Nuke on Rails is an open source skill (Claude Code and cross-agent) that audits 
 
 ## Hard rules
 
-- **Everything public is written in fluent English** — README, SKILL.md, lenses, generated reports, issues, PRs, releases, commit messages. The audience is the global Rails community.
+- **Published artifacts are written in fluent English** — README, SKILL.md, lenses, issues, PRs, releases, commit messages. The audience is the global Rails community. **The runtime audit is the exception: the generated report and step announcements match the language the user writes in.**
 - **Naming:** "Nuke on Rails" as the brand in prose; `nuke-on-rails` (kebab-case) in code, paths and commands; never `nukeonrails`.
 - **Security findings are held to a higher bar than quality findings.** A weak quality finding gets ignored; a false security claim in a report burns trust. Every security finding must survive adversarial verification before reaching the report.
 
