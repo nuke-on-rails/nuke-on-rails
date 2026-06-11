@@ -99,7 +99,7 @@ Deterministic scanners do the scanning; the LLM is the judge, not the author. On
 2. **Runs the scanners** and reads their machine-readable output. It brings its own tools and never touches your Gemfile.
 3. **Picks the hotspots** by churn × complexity, reading deeply where it matters instead of reviewing everything uniformly.
 4. **Triages**: it kills false positives by reading the actual code path, applies the lenses above, and adversarially verifies every security finding before it reaches the report. Anything it can't justify is downgraded to "theoretical," not sold as confirmed.
-5. **Returns one report, ranked by impact** — a plan a principal engineer would sign, not a tool dump.
+5. **Returns one report, ranked by impact**: a plan a principal engineer would sign, not a tool dump.
 
 ## Quick Start
 
