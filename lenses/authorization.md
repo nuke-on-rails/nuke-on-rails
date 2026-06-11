@@ -6,7 +6,7 @@ Apply it to every controller that touches user-owned or money-related data, plus
 
 ## Methodology
 
-1. **Map the attack surface first.** Read `config/routes.rb` and list every reachable action. Blanket `resources :orders` exposes seven actions — flag routes for actions that don't exist in the controller or were never meant to be public. Generated apps almost never restrict with `only:`.
+1. **Map the attack surface first.** Read `config/routes.rb` and list every reachable action. Blanket `resources :orders` exposes seven actions — flag routes for actions that don't exist in the controller or were never meant to be public. Generated apps almost never restrict with `only:`. A legacy catch-all route (`match ':controller(/:action(/:id))'`) exposes every public method as an action — flag it outright. For authorization errors on guessable resources, returning 403 (vs 404) confirms the record exists — prefer 404 to avoid enumeration.
 2. **Identify the authorization layer.** Pundit, CanCanCan, action_policy, or nothing? If a library is present, the question becomes "where is it *skipped*?" (`authorize` missing in an action, no `verify_authorized` hook, `skip_authorization` sprinkled around). If nothing is present, every controller action is hand-audited.
 3. **For each sensitive action ask three questions:** Who can reach this? What records can it load? Is the record scoped to the requester?
 
@@ -23,6 +23,7 @@ Apply it to every controller that touches user-owned or money-related data, plus
 
 - Actions with authentication (`authenticate_user!`) but no *authorization* — logged-in is not allowed-to.
 - Admin functionality guarded only by obscurity: an `/admin` namespace with no role check, or a `before_action` checking `params` instead of the session user.
+- **Records leaked through form helpers**: a `collection_select`/dropdown populated with `Category.all` instead of `policy_scope(Category)` (or `current_user.categories`) exposes every record's existence right in the rendered page — an authorization leak no static scanner sees. Check select boxes and association pickers on user-facing forms.
 - Authorization enforced in the **view** (hiding the button) but not in the controller — the request still works via curl.
 - Role/permission fields reachable through mass assignment: `permit(:role)`, `permit!`, or `update(params[:user])` on a model with `admin`/`role` columns. Brakeman flags some of this; confirm the semantic cases it can't.
 - Multi-tenant apps where tenant scoping depends on developer discipline per-query instead of a default scope/`acts_as_tenant`-style guarantee — one forgotten `where(account:)` is a cross-tenant leak.
