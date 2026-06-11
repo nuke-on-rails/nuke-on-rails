@@ -22,6 +22,7 @@ Zero-dependency principle: the skill brings its own tools. Never touch the app's
 gem list rubycritic -i || gem install rubycritic
 gem list brakeman -i || gem install brakeman          # Rails only
 gem list bundler-audit -i || gem install bundler-audit
+gem list ruby_audit -i || gem install ruby_audit
 ```
 
 Then run all three and capture machine-readable output:
@@ -30,6 +31,7 @@ Then run all three and capture machine-readable output:
 rubycritic --format json --no-browser <app paths>
 brakeman --format json --quiet                         # Rails only
 bundle-audit check --update
+ruby-audit check                                       # CVEs in the Ruby version itself
 ```
 
 If an engine fails, degrade gracefully: report which engine was skipped and why, and continue with the others.

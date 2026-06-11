@@ -10,7 +10,7 @@ Nuke on Rails is an open source skill (Claude Code and cross-agent) that runs th
 
 - **[rubycritic](https://github.com/whitesmith/rubycritic)** — code quality. The churn × complexity quadrant decides where attention goes first.
 - **[Brakeman](https://brakemanscanner.org/)** — security. The LLM triages: filters false positives and explains the actual exploit path.
-- **[bundler-audit](https://github.com/rubysec/bundler-audit)** — known CVEs in your gems.
+- **[bundler-audit](https://github.com/rubysec/bundler-audit)** + **[ruby_audit](https://github.com/civisanalytics/ruby_audit)** — known CVEs in your gems and in your Ruby version itself.
 
 Instead of stapling three reports together, it produces **one single list, prioritized by impact** — an IDOR in your payments controller comes before a fat model; a high-churn fat model comes before a theoretical warning.
 

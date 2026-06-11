@@ -20,7 +20,7 @@ Three deterministic engines + LLM as judge:
 
 1. **rubycritic** — quality. The churn × complexity quadrant decides where the LLM spends its context. Never review a codebase uniformly.
 2. **Brakeman** — security. Brakeman is the engine; the LLM is the triager: filter false positives, explain the real exploit path. The LLM also *covers* (not "guarantees") what Brakeman can't reach: IDOR, authorization, business logic.
-3. **bundler-audit** — known CVEs in gems.
+3. **bundler-audit** (+ **ruby_audit**) — known CVEs in gems and in the Ruby version itself.
 
 ## Design principles
 
