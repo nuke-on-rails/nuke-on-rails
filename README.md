@@ -1,8 +1,8 @@
 <div align="center">
 
-### One command. Every risk in your Rails app, ranked by impact.
-
 <img src="assets/nuke-on-rails.png" alt="Nuke on Rails: a steam train hauling a nuclear bomb through the desert as a mushroom cloud erupts" width="100%">
+
+### One command. Every risk in your Rails app, ranked by impact.
 
 <a href="https://twitter.com/alanalvestech">
   <img src="https://img.shields.io/badge/Follow on X-000000?style=for-the-badge&logo=x&logoColor=white" alt="Follow on X" />
@@ -35,88 +35,6 @@ Instead of stapling separate tool reports together, it returns **a single list, 
 
 Scanners list problems. Nuke on Rails decides the order.
 
-## Why not just ask the agent to "review my code"?
-
-You can, and it'll find something. But "review my Rails app" gives a different, shallower answer every time and skips everything a deterministic scanner catches. The difference:
-
-| | Asking an agent to "review my code" | Nuke on Rails |
-|---|---|---|
-| **Scanning** | The model eyeballs whatever files it happens to read | Brakeman parses 100% of the AST; bundler-audit and ruby_audit check every locked gem |
-| **Reproducible** | A different answer every run | Deterministic engines plus a fixed methodology |
-| **Where it looks** | Wherever the model wanders, until context runs out | Churn × complexity picks the hotspots that actually matter |
-| **CVEs & EOL** | Bounded by the training cutoff; can't know yesterday's CVE | Live advisory DB, day-zero web cross-checks, end-of-life detection |
-| **False positives** | Confidently reports plausible-but-wrong issues | Every security finding adversarially verified; unprovable ones flagged "theoretical" |
-| **Coverage** | Whatever it remembers to check that day | A fixed OWASP Top 10 lens catalog, every run |
-| **Output** | A wall of prose | One list ranked by impact, with a fix-now plan |
-
-The LLM still does the part it's good at: reading code paths, explaining exploits, judging severity. It just doesn't do it alone, from memory, and unprioritized.
-
-## What it catches
-
-Coverage maps to the **OWASP Top 10 2025**. Each area is a [lens](lenses/): a plain-markdown check the audit applies on top of the scanners.
-
-**[Access control & IDOR](lenses/authorization.md)**
-- Records loaded by id without ownership scoping (the canonical payments / orders / invoices case)
-- Authorization missing where authentication exists (logged-in is not allowed-to)
-- Mass assignment: `permit!`, role escalation, nested attributes, raw-Hash bypass
-- Records leaked through form dropdowns and serializers
-- Cross-tenant leaks in multi-tenant apps; routes exposing actions that shouldn't be public
-
-**[Authentication & sessions](lenses/authentication.md)**
-- Devise misconfig: user enumeration, no lockout, sessions that never expire, weak password policy
-- Session fixation and missing cookie flags (`secure` / `httponly` / `SameSite`)
-- Timing attacks and type-juggling on token and credential lookups
-- Tokens stored in plaintext or without expiry; rate-limit / throttle bypass
-- Custom Warden strategy bugs, scope confusion, impersonation gaps; JWT pitfalls (`none` alg, no expiry)
-
-**[Secrets](lenses/secrets.md)**
-- `master.key`, credentials keys, or `.env` committed to git (including in history)
-- Hardcoded API keys (Stripe, AWS, Twilio…) in code and initializers
-- Secrets in seeds, fixtures, or `database.yml`; secret-as-ENV-fallback
-
-**[Cryptography](lenses/cryptography.md)**
-- Encryption oracles (one crypto routine reused for trust tokens and user data)
-- Hand-rolled crypto instead of Rails primitives; static IVs; unauthenticated cipher modes
-- Weak password hashing (MD5/SHA); sensitive columns (CPF, SSN, bank, health) stored in plaintext
-
-**[Configuration & hardening](lenses/hardening.md)**
-- `force_ssl` / HSTS off; backing-service traffic (Postgres, Redis) in cleartext
-- CSP missing or disabled; CSRF skipped on cookie-authenticated actions; host-header injection
-- Unauthenticated mounted dashboards (Sidekiq, PgHero, Flipper)
-- Debug / console gems shipped to production (a remote-code-execution surface)
-- Stack traces to users, unsafe uploads, stored XSS via markdown rendering
-
-**[API surface](lenses/api.md)**
-- JSON over-exposure (`render json:` leaking token digests, role flags, PII)
-- Missing pagination (table dump and self-DoS); CORS wildcard with credentials; tokens in query strings
-- Exception leakage; unverified webhooks
-- GraphQL introspection and unbounded query depth/complexity; XXE and entity expansion; OAuth `redirect_uri` / `state` / scope flaws
-
-**[Logging & monitoring](lenses/logging.md)**
-- Sensitive data in logs (filter gaps, `puts` / logger dumps, unscrubbed error-tracker breadcrumbs)
-- PII sent to third-party and LLM calls
-- No audit trail on login, payment, privilege, and admin actions
-
-**[Dependencies & versions](lenses/cve.md)**
-- Known CVEs in your gems and in the Ruby version itself
-- JavaScript dependency advisories; insecure or unpinned gem sources
-- End-of-life Ruby or Rails (a critical compliance finding even with zero open CVEs)
-
-**[Code quality](lenses/code-quality.md)**
-- Fat models, callback-driven workflows, rug concerns, spaghetti branching, N+1, the churn × complexity hotspots
-
-The community grows the catalog: a new check is a markdown PR, no code required.
-
-## How it works
-
-Deterministic scanners do the scanning; the LLM is the judge, not the author. On every run the skill:
-
-1. **Detects** the project: full Rails app, plain Ruby (graceful degradation), or neither.
-2. **Runs the scanners** and reads their machine-readable output. It brings its own tools and never touches your Gemfile.
-3. **Picks the hotspots** by churn × complexity, reading deeply where it matters instead of reviewing everything uniformly.
-4. **Triages**: it kills false positives by reading the actual code path, applies the lenses above, and adversarially verifies every security finding before it reaches the report. Anything it can't justify is downgraded to "theoretical," not sold as confirmed.
-5. **Returns one report, ranked by impact**: a plan a principal engineer would sign, not a tool dump.
-
 ## Quick Start
 
 Nuke on Rails ships through the [`skills`](https://skills.sh) CLI. You'll need [Node.js](https://nodejs.org).
@@ -148,6 +66,130 @@ Zero setup beyond that. It installs its own tools, detects Rails vs. plain Ruby,
 ```sh
 skills update nuke-on-rails
 ```
+
+## Why not just ask the agent to "review my code"?
+
+You can, and it'll find something. But "review my Rails app" gives a different, shallower answer every time and skips everything a deterministic scanner catches. The difference:
+
+| | Asking an agent to "review my code" | Nuke on Rails |
+|---|---|---|
+| **Scanning** | The model eyeballs whatever files it happens to read | Brakeman parses 100% of the AST; bundler-audit and ruby_audit check every locked gem |
+| **Reproducible** | A different answer every run | Deterministic engines plus a fixed methodology |
+| **Where it looks** | Wherever the model wanders, until context runs out | Churn × complexity picks the hotspots that actually matter |
+| **CVEs & EOL** | Bounded by the training cutoff; can't know yesterday's CVE | Live advisory DB, day-zero web cross-checks, end-of-life detection |
+| **False positives** | Confidently reports plausible-but-wrong issues | Every security finding adversarially verified; unprovable ones flagged "theoretical" |
+| **Coverage** | Whatever it remembers to check that day | A fixed OWASP Top 10 lens catalog, every run |
+| **Output** | A wall of prose | One list ranked by impact, with a fix-now plan |
+
+The LLM still does the part it's good at: reading code paths, explaining exploits, judging severity. It just doesn't do it alone, from memory, and unprioritized.
+
+## What it catches
+
+Coverage maps to the **OWASP Top 10 2025**. Each area is a [lens](lenses/): a plain-markdown check the audit applies on top of the scanners.
+<details open>
+<summary><strong><a href="lenses/authorization.md">Access control & IDOR</a></strong></summary>
+
+* Records loaded by id without ownership scoping (the canonical payments / orders / invoices case)
+* Authorization missing where authentication exists (logged-in is not allowed-to)
+* Mass assignment: `permit!`, role escalation, nested attributes, raw-Hash bypass
+* Records leaked through form dropdowns and serializers
+* Cross-tenant leaks in multi-tenant apps; routes exposing actions that shouldn't be public
+
+</details>
+
+<details>
+<summary><strong><a href="lenses/authentication.md">Authentication & sessions</a></strong></summary>
+
+* Devise misconfig: user enumeration, no lockout, sessions that never expire, weak password policy
+* Session fixation and missing cookie flags (`secure` / `httponly` / `SameSite`)
+* Timing attacks and type-juggling on token and credential lookups
+* Tokens stored in plaintext or without expiry; rate-limit / throttle bypass
+* Custom Warden strategy bugs, scope confusion, impersonation gaps; JWT pitfalls (`none` alg, no expiry)
+
+</details>
+
+<details>
+<summary><strong><a href="lenses/secrets.md">Secrets</a></strong></summary>
+
+* `master.key`, credentials keys, or `.env` committed to git (including in history)
+* Hardcoded API keys (Stripe, AWS, Twilio…) in code and initializers
+* Secrets in seeds, fixtures, or `database.yml`; secret-as-ENV-fallback
+
+</details>
+
+<details>
+<summary><strong><a href="lenses/cryptography.md">Cryptography</a></strong></summary>
+
+* Encryption oracles (one crypto routine reused for trust tokens and user data)
+* Hand-rolled crypto instead of Rails primitives; static IVs; unauthenticated cipher modes
+* Weak password hashing (MD5/SHA); sensitive columns (CPF, SSN, bank, health) stored in plaintext
+
+</details>
+
+<details>
+<summary><strong><a href="lenses/hardening.md">Configuration & hardening</a></strong></summary>
+
+* `force_ssl` / HSTS off; backing-service traffic (Postgres, Redis) in cleartext
+* CSP missing or disabled; CSRF skipped on cookie-authenticated actions; host-header injection
+* Unauthenticated mounted dashboards (Sidekiq, PgHero, Flipper)
+* Debug / console gems shipped to production (a remote-code-execution surface)
+* Stack traces to users, unsafe uploads, stored XSS via markdown rendering
+
+</details>
+
+<details>
+<summary><strong><a href="lenses/api.md">API surface</a></strong></summary>
+
+* JSON over-exposure (`render json:` leaking token digests, role flags, PII)
+* Missing pagination (table dump and self-DoS); CORS wildcard with credentials; tokens in query strings
+* Exception leakage; unverified webhooks
+* GraphQL introspection and unbounded query depth/complexity
+* XXE and entity expansion
+* OAuth `redirect_uri`, `state`, and scope flaws
+
+</details>
+
+<details>
+<summary><strong><a href="lenses/logging.md">Logging & monitoring</a></strong></summary>
+
+* Sensitive data in logs (filter gaps, `puts` / logger dumps, unscrubbed error-tracker breadcrumbs)
+* PII sent to third-party and LLM calls
+* No audit trail on login, payment, privilege, and admin actions
+
+</details>
+
+<details>
+<summary><strong><a href="lenses/cve.md">Dependencies & versions</a></strong></summary>
+
+* Known CVEs in your gems and in the Ruby version itself
+* JavaScript dependency advisories
+* Insecure or unpinned gem sources
+* End-of-life Ruby or Rails (a critical compliance finding even with zero open CVEs)
+
+</details>
+
+<details>
+<summary><strong><a href="lenses/code-quality.md">Code quality</a></strong></summary>
+
+* Fat models
+* Callback-driven workflows
+* Rug concerns
+* Spaghetti branching
+* N+1 queries
+* The churn × complexity hotspots
+
+</details>
+The community grows the catalog: a new check is a markdown PR, no code required.
+
+## How it works
+
+Deterministic scanners do the scanning; the LLM is the judge, not the author. On every run the skill:
+
+1. **Detects** the project: full Rails app, plain Ruby (graceful degradation), or neither.
+2. **Runs the scanners** and reads their machine-readable output. It brings its own tools and never touches your Gemfile.
+3. **Picks the hotspots** by churn × complexity, reading deeply where it matters instead of reviewing everything uniformly.
+4. **Triages**: it kills false positives by reading the actual code path, applies the lenses above, and adversarially verifies every security finding before it reaches the report. Anything it can't justify is downgraded to "theoretical," not sold as confirmed.
+5. **Returns one report, ranked by impact**: a plan a principal engineer would sign, not a tool dump.
 
 ## Star History
 
