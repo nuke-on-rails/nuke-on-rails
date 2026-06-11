@@ -30,7 +30,7 @@ Then run all three and capture machine-readable output:
 ```sh
 rubycritic --format json --no-browser <app paths>
 brakeman --format json --quiet                         # Rails only
-bundle-audit check --update
+bundle-audit check --update --format json              # also flags insecure gem sources (git://, http://)
 ruby-audit check                                       # CVEs in the Ruby version itself
 ```
 
