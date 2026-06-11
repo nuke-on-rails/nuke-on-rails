@@ -46,6 +46,8 @@ If an engine fails, degrade gracefully: report which engine was skipped and why,
 
 Use rubycritic's churn × complexity data to pick the hotspots: files that are both complex **and** change often. Those are the files you read deeply. Never review the codebase uniformly — a complex file nobody touches is a lower priority than a moderately complex file that changes every week.
 
+**Churn needs git history — verify it before trusting the quadrant.** rubycritic derives churn from `git log`, so a shallow clone (`--depth 1`) or a freshly-initialized repo gives every file the same churn (1 or 0) and the quadrant silently collapses to noise — common exactly in the unfamiliar-repo case this skill targets. If churn is uniform across modules, say so and fall back to ranking by complexity and smell density (rubycritic wraps Reek/Flay/Flog — use the per-module `smells` and `complexity`, not just the score). When possible, unshallow first (`git fetch --unshallow`).
+
 ## Step 3 — Triage security findings (you are the judge, not the scanner)
 
 For every Brakeman warning and every bundler-audit CVE:
