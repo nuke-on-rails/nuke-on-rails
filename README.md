@@ -6,7 +6,7 @@
 
 ---
 
-<img src="assets/nuke-on-rails.png" alt="Nuke on Rails" width="520">
+<img src="assets/nuke-on-rails.png" alt="Nuke on Rails — a steam train hauling a nuclear bomb through the desert as a mushroom cloud erupts" width="100%">
 
 <br>
 
