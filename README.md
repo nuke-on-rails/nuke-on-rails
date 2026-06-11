@@ -20,16 +20,31 @@
 
 <p align="center">
   <a href="#what-it-is">What It Is</a> &nbsp;&bull;&nbsp;
-  <a href="#quick-start">Quick Start</a> &nbsp;&bull;&nbsp;
   <a href="#who-its-for">Who It's For</a> &nbsp;&bull;&nbsp;
-  <a href="#how-it-works">How It Works</a>
+  <a href="#how-it-works">How It Works</a> &nbsp;&bull;&nbsp;
+  <a href="#quick-start">Quick Start</a>
 </p>
 
 ---
 
 ## What it is
 
-**Nuke on Rails** audits your Rails app the way a principal engineer would: it tells you *what to refactor, what's vulnerable, and in what order to fix it.* One open source skill (Claude Code and cross-agent) powered by three battle-tested engines, with an LLM in the judge's seat and a catalog of **lenses** that widen the search to vulnerabilities and improvements no scanner can see:
+**Nuke on Rails** audits your Rails app the way a principal engineer would: it tells you *what to refactor, what's vulnerable, and in what order to fix it.* One open source skill (Claude Code and cross-agent) powered by three battle-tested engines and a catalog of lenses, with an LLM in the judge's seat.
+
+Three engines, a stack of lenses, one verdict. Instead of stapling reports together, Nuke on Rails returns **a single list, ranked by impact**. An IDOR in your payments controller outranks a fat model; a high-churn fat model outranks a theoretical warning.
+
+RuboCop, Brakeman and rubycritic **list** problems. Nuke on Rails **decides the order**.
+
+## Who It's For
+
+- **Rails developers** who want a principal-engineer-grade audit on demand.
+- **Vibecoders.** If you built your Rails app with AI and can't fully review the code yourself, this is the safety check you didn't know you needed: mass assignment, missing authorization, IDOR, gems with known CVEs.
+
+Plain Ruby projects (gems, CLIs) work too with graceful degradation: rubycritic and bundler-audit run, Brakeman is skipped.
+
+## How It Works
+
+Nuke on Rails runs three deterministic engines, widened by a catalog of **lenses** that reach what static analysis can't:
 
 - **[rubycritic](https://github.com/whitesmith/rubycritic)** for **code quality**. The churn × complexity quadrant decides where attention goes first.
 - **[Brakeman](https://brakemanscanner.org/)** for **security**. The LLM triages every warning: kills false positives, explains the real exploit path.
@@ -46,9 +61,13 @@
 
 The first three are the deterministic engines; the rest are **lenses**, plain-markdown checks covering the OWASP Top 10 2025. The community grows the catalog: a new check is a text-only PR, no code required.
 
-Three engines, a stack of lenses, one verdict. Instead of stapling reports together, Nuke on Rails returns **a single list, ranked by impact**. An IDOR in your payments controller outranks a fat model; a high-churn fat model outranks a theoretical warning.
+On every run, the skill:
 
-RuboCop, Brakeman and rubycritic **list** problems. Nuke on Rails **decides the order**.
+1. **Detects** the project: full Rails app, plain Ruby (graceful degradation), or neither.
+2. **Runs the engines** and captures machine-readable output. It brings its own tools and never touches your Gemfile.
+3. **Picks the hotspots** with the churn × complexity quadrant, reading deeply where it matters instead of reviewing everything uniformly.
+4. **Triages and applies the lenses.** You are the judge, not the scanner: every finding is adversarially verified before it reaches the report, and security findings are held to a higher bar than quality ones.
+5. **Returns one impact-ranked report.** A plan a principal engineer would sign, not a tool dump.
 
 ## Quick Start
 
@@ -63,21 +82,6 @@ Then, inside your agent:
 ```
 
 Zero setup. The skill installs the engines, detects Rails vs. plain Ruby, runs everything, and hands you the plan.
-
-## Who It's For
-
-- **Rails developers** who want a principal-engineer-grade audit on demand.
-- **Vibecoders.** If you built your Rails app with AI and can't fully review the code yourself, this is the safety check you didn't know you needed: mass assignment, missing authorization, IDOR, gems with known CVEs.
-
-Plain Ruby projects (gems, CLIs) work too with graceful degradation: rubycritic and bundler-audit run, Brakeman is skipped.
-
-## How It Works
-
-1. **Detect** the project: full Rails app, plain Ruby (graceful degradation), or neither.
-2. **Run the engines** and capture machine-readable output. The skill brings its own tools and never touches your Gemfile.
-3. **Pick the hotspots** with the churn × complexity quadrant, so the LLM reads deeply where it matters instead of reviewing everything uniformly.
-4. **Triage and apply the lenses.** You are the judge, not the scanner: every finding is adversarially verified before it reaches the report, and security findings are held to a higher bar than quality ones.
-5. **Return one impact-ranked report.** A plan a principal engineer would sign, not a tool dump.
 
 ## Design principles
 
