@@ -31,6 +31,12 @@ The agent has web access; the engines don't. Two blind spots, three checks — a
 - **Day-zero, gems:** fetch https://security.snyk.io/vuln/rubygems once — server-rendered, ~30 newest RubyGems disclosures, gem name in each slug (`SNYK-RUBY-<GEM>-…`). Intersect the names with `Gemfile.lock`; triage only the matches.
 - **Second opinion, critical gems:** for the security-critical gems only (web server, auth, file/XML parsing — not the whole lockfile), `POST https://api.osv.dev/v1/querybatch` with `{"package": {"name": …, "ecosystem": "RubyGems"}, "version": …}`. OSV aggregates the GitHub Advisory Database and covers what ruby-advisory-db misses. The batch response is an *index* — ids and timestamps only. Match those ids (and their CVE aliases) against what the engines already reported, and fetch details (`GET /v1/vulns/{id}`) **only for the ids the engines missed** — those are the coverage-gap findings. In the detail record: `aliases` maps GHSA↔CVE, `database_specific.severity` has the severity label (the `severity` field is a CVSS vector string, not a number), and `affected.ranges.events.fixed` is the bump target. Triage like any other CVE.
 
+## End-of-life runtime and framework
+
+The engines flag *known CVEs against the current version*; they do not flag that a version is **past end-of-life and will never receive another patch**. An EOL Rails or Ruby with a clean bundler-audit today is still a standing critical risk — the next CVE (like the March 2026 Rails path-traversal/XSS/DoS fixes) simply won't be backported. Auditors treat EOL as a critical compliance finding (PCI DSS, HIPAA).
+
+Check both clocks independently (the "dual EOL" problem) — Ruby from `.ruby-version`/`Gemfile`, Rails from `Gemfile.lock`. EOL dates move, so verify against current support status (endoflife.date, the Rails maintenance policy) when online rather than trusting a hardcoded table. Snapshot as of 2026 for reference: **Ruby** ≤3.1 EOL, 3.2 EOL March 2026, 3.3–3.4 supported; **Rails** ≤7.1 EOL, 7.2 security-only until Aug 2026, 8.0 supported. Report an EOL runtime/framework as confirmed-critical with the concrete remedy: the nearest supported upgrade target.
+
 ## Reporting
 
 Group by gem, not by advisory: "bump rack 3.2.5 → ≥ 3.2.6 — clears 13 advisories (worst: CVSS 7.5 request smuggling)" is one actionable item, not thirteen line items. For each confirmed finding, one blast-radius sentence: what an attacker gets. End the CVE section with the single command that clears the most findings at once.
