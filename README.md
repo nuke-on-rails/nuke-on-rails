@@ -1,6 +1,6 @@
 <div align="center">
 
-### The security & health check for your Rails app — one command, one impact-ranked action plan.
+### One command. Every risk in your Rails app, ranked by impact.
 
 <img src="assets/nuke-on-rails.png" alt="Nuke on Rails — a steam train hauling a nuclear bomb through the desert as a mushroom cloud erupts" width="100%">
 
