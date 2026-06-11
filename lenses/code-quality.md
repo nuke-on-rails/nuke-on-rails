@@ -72,6 +72,8 @@ The classic smells of this lens, in their Rails form:
 - **Logic in views and helpers**: conditionals and data shaping in ERB or in grab-bag helper modules.
 - **N+1 and query leakage**: queries scattered through views and serializers; missing `includes`; `.all` loaded into memory to filter in Ruby.
 - **Scope/SQL drift**: raw SQL strings duplicating what scopes already express, or scopes so complex they hide an unindexed query.
+- **`default_scope`**: it silently rewrites every query on the model and breaks expectations the moment someone needs `unscoped`. Treat any non-trivial `default_scope` as a finding.
+- **Swallowed exceptions**: `rescue Exception`, bare `rescue` returning nil, or rescue blocks that log nothing — failure hidden to "make it work" is debt with interest, and a hallmark of unreviewed AI-generated code.
 
 ## Primary Review Questions
 
