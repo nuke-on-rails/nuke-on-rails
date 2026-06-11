@@ -1,6 +1,6 @@
 ---
 name: nuke-on-rails
-description: Full health audit for Rails apps — the review a principal engineer would do. Runs rubycritic, Brakeman and bundler-audit, triages every finding with the LLM as judge, and produces one impact-ranked action plan. Use for a Rails project audit, a security and health check, "nuke on rails", or a deep review of a vibecoded Rails app.
+description: Full health and security audit for Rails apps, the review a principal engineer would do. Runs rubycritic, Brakeman, bundler-audit and ruby_audit, triages every finding with the LLM as judge, applies OWASP Top 10 lenses for what scanners miss, and returns one impact-ranked action plan. Use for a Rails project audit, a security and health check, "nuke on rails", or a deep review of a vibecoded Rails app.
 disable-model-invocation: true
 ---
 
