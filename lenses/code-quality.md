@@ -1,0 +1,137 @@
+# Lens: Code Quality (Thermo-Nuclear)
+
+The quality engine of Nuke on Rails — absorbed from the Thermo-Nuclear Code Quality Review and translated to the Rails idiom. Apply this lens to the hotspot files selected by the churn × complexity quadrant, never to the whole codebase uniformly.
+
+Above all, be **ambitious** about code structure. Do not merely identify local cleanup opportunities. Actively search for "code judo" moves: restructurings that preserve behavior while making the implementation dramatically simpler, smaller, more direct, and more elegant.
+
+## Core Prompt
+
+Start from this baseline:
+
+> Perform a deep code quality audit of the hotspot files.
+> Rethink how each hotspot could be structured to meaningfully improve code quality without impacting behavior.
+> Work to improve abstractions, modularity, reduce spaghetti code, improve succinctness and legibility.
+> Be ambitious: if there is a clear path to improving the implementation that involves restructuring part of the codebase, propose it.
+> Be extremely thorough and rigorous. Measure twice, cut once.
+
+## Non-Negotiable Standards
+
+0. **Be ambitious about structural simplification.**
+   - Do not stop at "this could be a bit cleaner."
+   - Look for opportunities to reframe the design so that whole branches, helpers, modes, conditionals, or layers disappear entirely.
+   - Prefer the solution that makes the code feel inevitable in hindsight.
+   - Assume there is often a "code judo" move available: a re-organization that uses the existing architecture more effectively and makes the code dramatically simpler.
+   - If you see a path to delete complexity rather than rearrange it, push hard for that path.
+
+1. **Treat any file over 1,000 lines as a strong code-quality smell by default.**
+   - Prefer extracting POROs, service objects, query objects, or focused modules over letting a file sprawl.
+   - Only waive this if there is a compelling structural reason and the file is still clearly organized.
+
+2. **Do not tolerate spaghetti branching.**
+   - Be highly suspicious of ad-hoc conditionals, scattered special cases, and one-off branches inserted into unrelated flows.
+   - "Weird if statements in random places" are a design problem, not a stylistic nit.
+   - Prefer pushing the logic into a dedicated abstraction: a policy object, a state machine, a form object, a separate module.
+
+3. **Bias toward cleaning the design, not just accepting working code.**
+   - If behavior can stay the same while the structure becomes meaningfully cleaner, push for the cleaner version.
+   - Do not rubber-stamp "it works" implementations that leave the codebase messier.
+   - Strongly prefer simplifications that remove moving pieces altogether over refactors that merely spread the same complexity around.
+
+4. **Prefer direct, boring, maintainable code over hacky or magical code.**
+   - Treat brittle, ad-hoc, or "magic" behavior (heavy metaprogramming, `method_missing`, dynamic sends without need) as a code-quality problem.
+   - Flag thin abstractions, identity wrappers, or pass-through helpers that add indirection without buying clarity.
+
+5. **Push hard on boundary cleanliness.**
+   - Question hash-shaped data passed across layers when an explicit object (PORO, value object, form object) would make the contract clear.
+   - Be suspicious of long `&.` chains and nil-tolerant code that papers over an unclear invariant — ask whether the boundary should guarantee presence instead.
+   - Prefer explicit models or shared contracts over loosely-shaped ad-hoc hashes.
+
+6. **Keep logic in the canonical Rails layer and reuse existing helpers.**
+   - Business logic belongs in models or dedicated objects — not in controllers, views, helpers, or serializers.
+   - Call out feature logic leaking into shared paths, and bespoke one-offs where the codebase already has a canonical utility.
+   - Push code toward the layer that already owns the concept instead of normalizing architectural drift.
+
+7. **Treat unnecessary sequential orchestration and non-atomic updates as design smells.**
+   - Related writes that can leave state half-applied belong in a transaction.
+   - Slow work in the request cycle that belongs in a background job is a structural finding, not a nit.
+   - Do not over-index on micro-optimizations, but flag avoidable orchestration complexity that makes the implementation brittle.
+
+8. **Require test coverage for business rules, authorization, and sensitive data.**
+   - Every business rule must have a test covering its critical cases.
+   - Permissions and authorization checks must be tested — untested authorization is a security finding, not just a quality finding (escalate it to the security side of the report).
+   - Sensitive or critical data handling must have explicit coverage.
+
+## Rails Translation
+
+The classic smells of this lens, in their Rails form:
+
+- **Fat models**: god objects (usually `User`) accumulating every concern in the app. The fix is extraction into POROs, service objects, or domain modules — not a `concerns/` folder that hides the same mess.
+- **Rug concerns**: `app/models/concerns/` used as a rug to sweep code under. A concern that is only included in one model is a file split pretending to be an abstraction.
+- **Callback-driven business logic**: chains of `before_save`/`after_commit` that implement workflows invisibly. Side effects belong in an explicit object the caller invokes, not in hooks that fire by surprise.
+- **Controller bloat**: business decisions, queries, and orchestration living in actions. Controllers should authenticate, authorize, delegate, and respond.
+- **Logic in views and helpers**: conditionals and data shaping in ERB or in grab-bag helper modules.
+- **N+1 and query leakage**: queries scattered through views and serializers; missing `includes`; `.all` loaded into memory to filter in Ruby.
+- **Scope/SQL drift**: raw SQL strings duplicating what scopes already express, or scopes so complex they hide an unindexed query.
+
+## Primary Review Questions
+
+For every hotspot file, ask:
+
+- Is there a "code judo" move that would make this dramatically simpler?
+- Can this design be reframed so fewer concepts, branches, or helper layers are needed?
+- Did a previously cohesive module become coupled, stateful, or hard to scan?
+- Is this logic living in the right file and layer?
+- Are there repeated conditionals that signal a missing model or missing object?
+- Is the implementation direct and legible, or does it rely on special cases and incidental control flow?
+- Is each abstraction actually earning its keep, or is it just a wrapper?
+- Does data cross boundaries as loose hashes where an explicit object would make the invariant clear?
+- Is orchestration more sequential or less atomic than it needs to be?
+- Do the business rules in this file have tests covering their critical cases? Are authorization checks tested?
+
+## What to Flag Aggressively
+
+- A complicated implementation where a cleaner reframing could delete whole categories of complexity.
+- Files past 1,000 lines, especially when cohesive pieces could be split out.
+- One-off booleans, nullable modes, or flags that complicate existing control flow.
+- Feature-specific logic leaking into general-purpose modules.
+- Magic metaprogramming that hides simple structure.
+- Thin wrappers or identity abstractions that add indirection without simplifying anything.
+- Copy-pasted logic instead of extracted helpers.
+- Edge-case handling implemented in the middle of an already busy method.
+- "Temporary" branching that has clearly become permanent debt.
+- Bespoke helpers where the codebase already has a canonical utility for the job.
+- Callback chains implementing business workflows.
+- Business rules, permissions, or sensitive-data handling without test coverage.
+
+## Preferred Remedies
+
+- Delete a whole layer of indirection rather than polishing it.
+- Reframe the state model so conditionals disappear instead of getting centralized.
+- Turn special-case logic into a simpler default flow with fewer exceptions.
+- Extract a PORO, service object, query object, form object, or pure function.
+- Split a large file into smaller focused modules — by domain concept, not by line count.
+- Replace condition chains with an explicit model or dispatcher.
+- Separate orchestration from business logic; wrap related writes in a transaction.
+- Move callback side effects into an explicit object the caller invokes.
+- Collapse duplicate branches into a single clearer flow.
+- Reuse the existing canonical helper instead of introducing a near-duplicate.
+- Add tests before touching business rules that have no coverage.
+
+Do not be satisfied with "maybe rename this" feedback when the real issue is structural.
+Do not be satisfied with a merely cleaner version of the same messy idea if there is a plausible path to a much simpler idea.
+
+## Tone and Output
+
+Be direct, serious, and demanding about quality. Do not be rude, but do not soften major maintainability issues into mild suggestions. If the code is messy, say so clearly; if there is a dramatic simplification available, say that clearly too.
+
+Prioritize findings in this order:
+
+1. Structural code-quality problems in high-churn files
+2. Missed opportunities for dramatic simplification / code-judo restructuring
+3. Spaghetti / branching complexity
+4. Boundary and abstraction problems that make the code harder to reason about
+5. File-size and decomposition concerns
+6. Missing test coverage on business rules and authorization (escalate authorization gaps to the security side)
+7. Legibility and maintainability concerns
+
+Do not flood the report with low-value nits if there are larger structural issues. Prefer a small number of high-conviction findings over a long list of cosmetic notes. Every finding feeds the unified impact-ranked report — give it a severity, a location, and a concrete first step.

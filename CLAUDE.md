@@ -6,7 +6,7 @@ Guidance for Claude Code (and other coding agents) working in this repository.
 
 Nuke on Rails is an open source skill (Claude Code and cross-agent) that audits the health of a Rails project — the review a principal engineer would do: *what to refactor, what's vulnerable, and in what order to attack it*. It runs three deterministic engines, uses the LLM as the judge, and produces **one single list prioritized by impact**.
 
-**Status: pre-v0.** The skill is not built yet. The bar for v0: it works first time on any Rails repo and produces a result the developer couldn't get by just asking an agent to "review my code".
+**The quality bar:** the skill must work first time on any Rails repo, with zero setup, and produce a result the developer couldn't get by just asking an agent to "review my code".
 
 ## Hard rules
 

@@ -2,8 +2,6 @@
 
 > The security & health check for your Rails app — one command, one impact-ranked action plan.
 
-**Status: early development.** v0 is being built right now — nothing to install yet. Watch the repo to be around for launch.
-
 ## What it is
 
 A full project health audit for Rails apps — the review a principal engineer would do: *what to refactor, what's vulnerable, and in what order to attack it*.
