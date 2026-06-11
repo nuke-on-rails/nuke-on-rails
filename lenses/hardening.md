@@ -23,6 +23,7 @@ Reference: Rails Security Guide — link findings to its sections (https://guide
 ## Exposure through config
 
 - **Unauthenticated mounted dashboards** — `mount Sidekiq::Web`, PgHero, Flipper UI in `routes.rb` without an authentication constraint: confirmed-critical territory (job args often contain PII; some dashboards can execute things), not a config nit.
+- **Debug/console gems reachable in production** — `web-console`, `better_errors`, `binding_of_caller` in the default or `production` Gemfile group (not confined to `:development`), or `config.web_console.*` left enabled: an exposed console is remote code execution. Read the Gemfile groups and the production config. Confirmed-critical.
 - `config.consider_all_requests_local = true` in production — stack traces to users.
 - `config.filter_parameters` missing the app's actual sensitive fields (tokens, documents, card data) — secrets in logs.
 
@@ -39,6 +40,7 @@ Sensitive pages (account, payment, anything behind login) cached client-side or 
 
 - Uploads: no content-type/extension allowlist, or user-uploaded HTML/SVG served from the app's own domain (stored XSS). ActiveStorage/CarrierWave validations are semantic — Brakeman won't see their absence.
 - `send_file` / `send_data` with user-influenced paths or filenames (Brakeman flags some; confirm the rest).
+- **User-supplied markdown/HTML rendered unsafely** — `Redcarpet::Render::HTML` (instead of `::Safe`) on user content, `filter_html: false`, CommonMarker without `:SAFE`, or `sanitize` with an over-broad tag allowlist: stored XSS that Brakeman doesn't reliably catch at the library-config level.
 
 ## Severity and remedies
 
