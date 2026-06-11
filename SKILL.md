@@ -50,6 +50,8 @@ For every Brakeman warning and every bundler-audit CVE:
 
 Treat Brakeman's confidence level (`High`/`Medium`/`Weak`) as a prior, not a verdict: a `Weak` warning you confirm by reading the code outranks a `High` warning on an unreachable path. And if `config/brakeman.ignore` exists, re-triage every silenced warning — in an unreviewed codebase, an ignore file often means "made CI pass", not "verified safe".
 
+For CVEs, use the advisory's CVSS score as the severity prior and `patched_versions` as the concrete fix ("bump gem X to ≥ Y"). And be honest about coverage: bundler-audit and ruby_audit check against ruby-advisory-db, a community database that is not exhaustive — an empty result means "no known advisories", never "dependencies are secure". Phrase the report accordingly.
+
 Then apply the security lenses in `lenses/` to the hotspot controllers and models — they cover what Brakeman can't reach (IDOR, missing authorization, business-logic flaws). Lenses *cover* those areas; they do not *guarantee* them. Be explicit about that distinction in the report.
 
 ## Step 4 — Quality review of the hotspots
