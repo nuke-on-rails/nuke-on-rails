@@ -7,6 +7,7 @@ Reference: Rails Security Guide — link findings to its sections (https://guide
 ## Transport and cookies
 
 - **`config.force_ssl` not `true` in production** — session cookies travel over HTTP; HSTS absent. One line, high impact. (Behind a proxy, check `assume_ssl` too.)
+- **Backing-service connections in cleartext** — read `config/database.yml`, `config/cable.yml`, and Redis/cache config: Postgres without `sslmode: verify-full`, MySQL without `VERIFY_IDENTITY`, Redis without `ssl: true`. App↔database traffic in cleartext leaks every row in transit; visible in config, missed by every engine.
 - **Session cookie flags**: `secure`, `httponly`, and an explicit `SameSite` on the session store config. Cross-check with `lenses/authentication.md` for fixation/store issues.
 
 ## Headers and CSP
