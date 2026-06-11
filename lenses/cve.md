@@ -11,6 +11,10 @@ Honesty first: an empty engine result means "no known advisories in ruby-advisor
 - **Concrete fix:** `patched_versions`, as "bump gem X to ≥ Y".
 - **Insecure gem sources** (`git://`, `http://` in the Gemfile) come in the same output: triage who controls that source and whether it's pinned to a commit — an unpinned gem from a personal fork is a supply-chain finding, not a style note.
 
+## JavaScript dependencies (the other half of the lockfile)
+
+A modern Rails app ships JS the gem engines never see. Detect the toolchain and audit it: `bin/importmap audit` (importmap-rails), or `yarn npm audit` / `npm audit` when a `package.json`/`yarn.lock` is present. Triage the hits exactly like gem CVEs — reachability, severity, fix version. If the app has no JS dependencies, note that the check found none rather than skipping silently.
+
 ## Reachability triage
 
 Installed is not exploitable. For each advisory, ask whether the app actually exercises the vulnerable component:

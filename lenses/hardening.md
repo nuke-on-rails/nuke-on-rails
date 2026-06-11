@@ -25,6 +25,15 @@ Reference: Rails Security Guide — link findings to its sections (https://guide
 - `config.consider_all_requests_local = true` in production — stack traces to users.
 - `config.filter_parameters` missing the app's actual sensitive fields (tokens, documents, card data) — secrets in logs.
 
+## Browser and proxy caching of authenticated content
+
+Sensitive pages (account, payment, anything behind login) cached client-side or by an intermediary leak after logout or on shared machines. No engine checks this.
+
+- Sensitive responses without `Cache-Control: no-store, private` (Rails doesn't set this by default for authenticated pages).
+- Token-bearing URLs (password reset, email confirmation, magic links) without `<meta name="robots" content="noindex, nofollow">` — they get indexed and land in search results / referrer logs.
+- `autocomplete="off"` missing on sensitive form fields (payment, SSN) where browser storage is a real exposure.
+- `config.action_controller.default_url_options` host unset (host-header injection in generated links) and `asset_host` unset (cache-poisoning surface).
+
 ## Files
 
 - Uploads: no content-type/extension allowlist, or user-uploaded HTML/SVG served from the app's own domain (stored XSS). ActiveStorage/CarrierWave validations are semantic — Brakeman won't see their absence.
