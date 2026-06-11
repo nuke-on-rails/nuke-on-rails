@@ -35,29 +35,13 @@
 - **[Brakeman](https://brakemanscanner.org/)** for **security**. The LLM triages every warning: kills false positives, explains the real exploit path.
 - **[bundler-audit](https://github.com/rubysec/bundler-audit)** + **[ruby_audit](https://github.com/civisanalytics/ruby_audit)** for **known CVEs** in your gems and in the Ruby version itself.
 
-But scanners only catch what they can parse. So on top of them the LLM applies a catalog of **lenses**: pluggable checks written in plain markdown, covering the OWASP Top 10, that find what static analysis can't. Broken authorization and IDOR, hardcoded secrets, weak crypto, PII leaking into LLM prompts, end-of-life Ruby or Rails, and more.
-
 Three engines, a stack of lenses, one verdict. Instead of stapling reports together, Nuke on Rails returns **a single list, ranked by impact**. An IDOR in your payments controller outranks a fat model; a high-churn fat model outranks a theoretical warning.
 
 RuboCop, Brakeman and rubycritic **list** problems. Nuke on Rails **decides the order**.
 
-## Quick Start
-
-```sh
-npx skills add nuke-on-rails/nuke-on-rails
-```
-
-Then, inside your agent:
-
-```
-/nuke-on-rails
-```
-
-Zero setup. The skill installs the engines, detects Rails vs. plain Ruby, runs everything, and hands you the plan.
-
 ## Lenses
 
-Lenses are where Nuke on Rails goes beyond the scanners. Each is a plain-markdown check that teaches the LLM what to look for, together covering the **OWASP Top 10 2025**.
+Scanners only catch what they can parse. So on top of them, the LLM applies a catalog of **lenses**: plain-markdown checks that find what static analysis can't, together covering the **OWASP Top 10 2025**.
 
 ### 🔒 Security
 
@@ -78,6 +62,20 @@ Lenses are where Nuke on Rails goes beyond the scanners. Each is a plain-markdow
 - **[code-quality](lenses/code-quality.md)** : fat models, callback-driven logic, rug concerns, spaghetti branching. The thermo-nuclear quality bar, translated to Rails.
 
 The maintainer owns the engine; the community grows the catalog. **Contribute a new check with a text-only PR, no code required.**
+
+## Quick Start
+
+```sh
+npx skills add nuke-on-rails/nuke-on-rails
+```
+
+Then, inside your agent:
+
+```
+/nuke-on-rails
+```
+
+Zero setup. The skill installs the engines, detects Rails vs. plain Ruby, runs everything, and hands you the plan.
 
 ## Who It's For
 
