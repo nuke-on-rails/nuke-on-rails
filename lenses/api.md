@@ -20,6 +20,26 @@ For JSON endpoints — API-mode apps, `/api` namespaces, or any controller that 
 - Error responses that serialize exceptions (`render json: { error: e.message }` with internals, or full backtraces in production JSON).
 - Webhook endpoints without signature verification — being "internal" or unguessable is not authentication.
 
+## GraphQL (if the app uses graphql-ruby)
+
+A GraphQL endpoint is one URL with a different threat model — none of the REST checks above catch it.
+
+- **Introspection enabled in production** — the schema is a map of the whole attack surface; disable it outside development.
+- **No query depth/complexity limit** — a deeply nested or expensive query is a one-request DoS. Look for `max_depth`/`max_complexity` on the schema; their absence is the finding.
+- **No persisted-query allowlist** on a public-facing API where the client set is known.
+- Authorization checked at the controller but not per-field/resolver — GraphQL bypasses controller-level guards; the IDOR/authorization lens applies at the resolver level.
+
+## XML parsing (if the app accepts or parses XML)
+
+- **XXE** — `Nokogiri`/`LibXML` parsing user XML without disabling DTD and external entities (`Nokogiri::XML(io)` with `NONET`/`NOENT` misconfigured) reads local files or hits internal URLs.
+- **Entity expansion (Billion Laughs)** — no limit on nested entity expansion is a memory-exhaustion DoS. Disable entity expansion on user-supplied XML.
+
+## OAuth flows (if the app is a provider via Doorkeeper or a client via OmniAuth)
+
+- **`redirect_uri` not validated against a server-side allowlist** — open redirect that leaks the auth code/token. The single most common OAuth flaw.
+- **Missing `state` parameter** in the client flow — CSRF on the authorization callback.
+- **Scope not validated/defaulted** per application — over-broad grants.
+
 ## Severity and remedies
 
 A serializer leaking credentials or PII at scale competes with IDOR at the top of the report — state what leaks and to whom. CORS wildcard-with-credentials and unverified webhooks rank with the hardening tier unless a concrete abuse path is articulated. Remedies: explicit serializers with allowlisted fields, pagination defaults, rack-cors origin lists, rack-attack throttles, `secure_compare` on webhook signatures.
