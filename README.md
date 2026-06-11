@@ -41,7 +41,7 @@ Zero setup — the skill installs the engines, detects Rails vs. plain Ruby, run
 
 - **One impact-ranked report**, not tool sections.
 - **Adversarial verification** of every finding before it reaches the report — a false security claim is worse than a missed one.
-- **Pluggable lenses in plain markdown** (`lenses/idor.md`, `lenses/fat-models.md`, …) — contribute a new check with a text PR, no code required.
+- **Pluggable lenses in plain markdown** (`lenses/code-quality.md`, `lenses/authorization.md`, `lenses/authentication.md`, …) — contribute a new check with a text PR, no code required.
 
 ## Credits
 

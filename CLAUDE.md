@@ -26,7 +26,7 @@ Three deterministic engines + LLM as judge:
 
 - **Zero-dependency:** the skill installs the engines itself, detects Rails vs. plain Ruby, and degrades gracefully (plain Ruby: rubycritic + bundler-audit run, Brakeman is skipped).
 - **One impact-ranked report**, never tool sections stapled together. An IDOR in a payments controller outranks a fat model; a high-churn fat model outranks a theoretical warning.
-- **Lenses are plain markdown** (`lenses/idor.md`, `lenses/fat-models.md`, …). The community contributes checks via text-only PRs; the maintainer owns the engine (the RuboCop/cops model).
+- **Lenses are plain markdown** (`lenses/code-quality.md`, `lenses/authorization.md`, `lenses/authentication.md`, …). The community contributes checks via text-only PRs; the maintainer owns the engine (the RuboCop/cops model).
 
 ## Internal docs
 
