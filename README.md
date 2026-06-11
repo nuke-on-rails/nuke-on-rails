@@ -71,13 +71,22 @@ On every run, the skill:
 
 ## Quick Start
 
+Nuke on Rails ships through the [`skills`](https://skills.sh) CLI. All you need is [Node.js](https://nodejs.org) (it provides `npx`).
+
 **1. Install the skill** (from your project root):
 
 ```sh
 npx skills add nuke-on-rails/nuke-on-rails
 ```
 
-It installs through the [skills](https://skills.sh) CLI and works across agents: Claude Code, Cursor, Codex, Gemini CLI, Warp, and more.
+`npx` fetches the `skills` CLI for you, so there's nothing to install first. Prefer it installed globally?
+
+```sh
+npm install -g skills
+skills add nuke-on-rails/nuke-on-rails
+```
+
+Either way it works across agents: Claude Code, Cursor, Codex, Gemini CLI, Warp, and more.
 
 **2. Run it** inside your agent:
 
