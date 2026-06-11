@@ -25,14 +25,20 @@ gem list bundler-audit -i || gem install bundler-audit
 gem list ruby_audit -i || gem install ruby_audit
 ```
 
-Then run all three and capture machine-readable output:
+Then run them all and capture machine-readable output (commands validated on a real Rails 8 app):
 
 ```sh
-rubycritic --format json --no-browser <app paths>
-brakeman --format json --quiet                         # Rails only
-bundle-audit check --update --format json              # also flags insecure gem sources (git://, http://)
-ruby-audit check                                       # CVEs in the Ruby version itself
+OUT=$(mktemp -d)
+rubycritic app --format json --no-browser --path "$OUT/rubycritic"   # --path keeps output files out of the audited repo
+brakeman --format json --quiet -o "$OUT/brakeman.json"               # Rails only
+bundle-audit update                                                  # update the db in a separate step:
+bundle-audit check --format json > "$OUT/bundler-audit.json"         # --update mixed in pollutes the JSON on stdout
+(cd "$OUT" && ruby-audit check)                                      # run OUTSIDE the app dir — inside a bundled
+                                                                     # project the executable fails to load (Ruby 3.4+);
+                                                                     # make sure the app's Ruby version is still active
 ```
+
+bundler-audit also flags insecure gem sources (`git://`, `http://`) — triage those too.
 
 If an engine fails, degrade gracefully: report which engine was skipped and why, and continue with the others.
 
@@ -50,7 +56,7 @@ For every Brakeman warning and every bundler-audit CVE:
 
 Treat Brakeman's confidence level (`High`/`Medium`/`Weak`) as a prior, not a verdict: a `Weak` warning you confirm by reading the code outranks a `High` warning on an unreachable path. And if `config/brakeman.ignore` exists, re-triage every silenced warning — in an unreviewed codebase, an ignore file often means "made CI pass", not "verified safe".
 
-For CVEs, use the advisory's CVSS score as the severity prior and `patched_versions` as the concrete fix ("bump gem X to ≥ Y"). And be honest about coverage: bundler-audit and ruby_audit check against ruby-advisory-db, a community database that is not exhaustive — an empty result means "no known advisories", never "dependencies are secure". Phrase the report accordingly.
+For CVEs, first dedupe results by `(gem name, advisory id)` — a multi-platform `Gemfile.lock` repeats the same advisory once per platform. Use the advisory's `cvss_v3` as the severity prior (it can be null — fall back to `criticality`, then to reading the description) and `patched_versions` as the concrete fix ("bump gem X to ≥ Y"). And be honest about coverage: bundler-audit and ruby_audit check against ruby-advisory-db, a community database that is not exhaustive — an empty result means "no known advisories", never "dependencies are secure". Phrase the report accordingly.
 
 Then apply the security lenses in `lenses/` to the hotspot controllers and models — they cover what Brakeman can't reach (IDOR, missing authorization, business-logic flaws). Lenses *cover* those areas; they do not *guarantee* them. Be explicit about that distinction in the report.
 
