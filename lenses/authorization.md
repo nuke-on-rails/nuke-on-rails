@@ -26,6 +26,7 @@ Apply it to every controller that touches user-owned or money-related data, plus
 - **Records leaked through form helpers**: a `collection_select`/dropdown populated with `Category.all` instead of `policy_scope(Category)` (or `current_user.categories`) exposes every record's existence right in the rendered page — an authorization leak no static scanner sees. Check select boxes and association pickers on user-facing forms.
 - Authorization enforced in the **view** (hiding the button) but not in the controller — the request still works via curl.
 - Role/permission fields reachable through mass assignment: `permit(:role)`, `permit!`, or `update(params[:user])` on a model with `admin`/`role` columns. Brakeman flags some of this; confirm the semantic cases it can't.
+- **`accepts_nested_attributes_for` without ownership checks** — nested params let a user update or delete child records by id (`comments_attributes: [{id: 999, ...}]`) without the controller ever verifying the child belongs to the parent they own. A classic IDOR-through-nesting that static analysis misses: confirm the parent is loaded through `current_user` and that permitted nested ids are re-scoped.
 - Multi-tenant apps where tenant scoping depends on developer discipline per-query instead of a default scope/`acts_as_tenant`-style guarantee — one forgotten `where(account:)` is a cross-tenant leak.
 
 **Structural signals that raise suspicion:**
