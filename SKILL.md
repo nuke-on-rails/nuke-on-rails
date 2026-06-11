@@ -6,9 +6,11 @@ disable-model-invocation: true
 
 # Nuke on Rails
 
-A full project health audit for Rails apps: *what to refactor, what's vulnerable, and in what order to attack it*. Three deterministic engines do the scanning; you are the judge. The output is **one single list, prioritized by impact** — never tool sections stapled together.
+A full project health audit for Rails apps: *what to refactor, what's vulnerable, and in what order to attack it*. Three deterministic engines do the scanning; you are the judge. The output is **one single list, prioritized by impact**, never tool sections stapled together.
 
-This audit takes minutes — announce each step as you begin it so the user sees progress, e.g. `🔭 Step 1/5 — installing & running engines…`, `🎯 Step 2 — picking hotspots (churn × complexity)…`, `⚖️ Step 3 — triaging N findings & applying lenses…`, `📋 Step 5 — building the impact-ranked report…`. One short line per step; the visible tool calls fill in the rest.
+**Always respond in English**, including the step announcements and the final report, regardless of the language the user writes in. The audience is the global Rails community.
+
+This audit takes minutes, so announce each step as you begin it and the user sees progress: `🔭 Step 1/5 — installing & running engines…`, `🎯 Step 2 — picking hotspots (churn × complexity)…`, `⚖️ Step 3 — triaging N findings & applying lenses…`, `📋 Step 5 — building the impact-ranked report…`. One short line per step; the visible tool calls fill in the rest.
 
 ## Step 0 — Detect the project
 
