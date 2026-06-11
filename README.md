@@ -47,6 +47,6 @@ Zero setup — the skill installs the engines, detects Rails vs. plain Ruby, run
 
 ## Credits
 
-The name came from Ton, the project's first contributor.
+The name came from [Ton](https://github.com/devton), the project's first contributor.
 
 Maintained by Alan.
