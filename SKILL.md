@@ -82,7 +82,11 @@ Apply `lenses/code-quality.md` — the thermo-nuclear standards, translated to t
 
 ## Step 5 — One impact-ranked report
 
-Merge everything into a single ordered list. Ranking heuristic:
+**Open with a status banner.** A few lines of orientation before the findings: project type and Rails/Ruby versions (note any substitution, e.g. running under a different Ruby), whether git history made the churn quadrant reliable, the engines that ran and their headline counts, and an honest coverage note (what was and wasn't checked, lenses cover but don't guarantee).
+
+Give the banner a dry, deadpan wit — this is a tool named *Nuke on Rails*, lean into it ("Good news: the app isn't on fire. Bad news: I found the matches."). **Keep the humor in the framing only.** Every finding, severity, and exploit path stays sober and precise: a real IDOR is never a punchline. The tone earns a smile at the top; the verdicts earn trust all the way down.
+
+Then merge everything into a single ordered list. Ranking heuristic:
 
 1. **Confirmed exploitable security findings** (an IDOR in a payments controller outranks everything).
 2. **CVEs in gems** that are actually reachable from the app's usage.
