@@ -56,7 +56,15 @@ Treat Brakeman's confidence level (`High`/`Medium`/`Weak`) as a prior, not a ver
 
 For dependency and Ruby-version CVEs, apply `lenses/cve.md` to the bundler-audit and ruby_audit output — it covers deduping, severity priors, reachability triage, insecure gem sources, and the network cross-checks (day-zero and second-opinion) that close the advisory database's lag and coverage gaps.
 
-Then apply the security lenses — `lenses/authorization.md` (IDOR, missing authorization, attack surface), `lenses/authentication.md` (auth stack, Devise config, custom strategies, sessions) and `lenses/secrets.md` (committed keys and hardcoded credentials) — to the routes file and the sensitive controllers, models and initializers. They cover what Brakeman can't reach. Lenses *cover* those areas; they do not *guarantee* them. Be explicit about that distinction in the report.
+Then apply the security lenses to the routes file, the sensitive controllers and models, and the production config:
+
+- `lenses/authorization.md` — IDOR, missing authorization, attack surface
+- `lenses/authentication.md` — auth stack, Devise config, custom strategies, sessions
+- `lenses/secrets.md` — committed keys and hardcoded credentials
+- `lenses/hardening.md` — TLS, CSP, CSRF config, mounted dashboards, uploads
+- `lenses/api.md` — JSON over-exposure, CORS, rate limiting, webhooks (skip if the app has no JSON endpoints)
+
+They cover what Brakeman can't reach. Lenses *cover* those areas; they do not *guarantee* them. Be explicit about that distinction in the report.
 
 ## Step 4 — Quality review of the hotspots
 

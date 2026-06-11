@@ -1,0 +1,35 @@
+# Lens: Web Hardening
+
+Production configuration the Rails Security Guide mandates and no engine meaningfully checks. The files to read are few and cheap: `config/environments/production.rb`, `config/initializers/` (CSP, session store, filter parameters), `config/routes.rb` (mounted dashboards), `ApplicationController`. A vibecoded app ships with whatever the generator left — including everything that was generated *commented out*.
+
+Reference: Rails Security Guide — link findings to its sections (https://guides.rubyonrails.org/security.html).
+
+## Transport and cookies
+
+- **`config.force_ssl` not `true` in production** — session cookies travel over HTTP; HSTS absent. One line, high impact. (Behind a proxy, check `assume_ssl` too.)
+- **Session cookie flags**: `secure`, `httponly`, and an explicit `SameSite` on the session store config. Cross-check with `lenses/authentication.md` for fixation/store issues.
+
+## Headers and CSP
+
+- **Content-Security-Policy**: Rails generates `config/initializers/content_security_policy.rb` *commented out* — the most common state is "exists, disabled". Flag CSP absent, or stuck in `report_only` with nobody reading reports.
+- Default header set (X-Frame-Options, X-Content-Type-Options) is fine out of the box — flag code that *removes* defaults.
+
+## CSRF and hosts
+
+- `protect_from_forgery` skipped (`skip_before_action :verify_authenticity_token`) with a broad `only:`/`except:` list — legitimate for token-authenticated APIs, a hole for cookie-authenticated actions.
+- **Host authorization** (`config.hosts`) cleared or wildcarded in production — DNS-rebinding protection off.
+
+## Exposure through config
+
+- **Unauthenticated mounted dashboards** — `mount Sidekiq::Web`, PgHero, Flipper UI in `routes.rb` without an authentication constraint: confirmed-critical territory (job args often contain PII; some dashboards can execute things), not a config nit.
+- `config.consider_all_requests_local = true` in production — stack traces to users.
+- `config.filter_parameters` missing the app's actual sensitive fields (tokens, documents, card data) — secrets in logs.
+
+## Files
+
+- Uploads: no content-type/extension allowlist, or user-uploaded HTML/SVG served from the app's own domain (stored XSS). ActiveStorage/CarrierWave validations are semantic — Brakeman won't see their absence.
+- `send_file` / `send_data` with user-influenced paths or filenames (Brakeman flags some; confirm the rest).
+
+## Severity and remedies
+
+Most findings here are the **hardening tier**: above quality findings, below demonstrated exploits. Two exceptions that rank as confirmed-critical when present: an unauthenticated Sidekiq/admin dashboard, and a cookie-authenticated action with CSRF skipped. Remedies are almost always one line in `production.rb` or `routes.rb` — say which line. For throttling, the named remedy is rack-attack.
