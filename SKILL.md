@@ -14,6 +14,8 @@ A full project health audit for Rails apps: *what to refactor, what's vulnerable
 - **Plain Ruby** (Gemfile or gemspec, no Rails): graceful degradation — rubycritic and bundler-audit run, Brakeman is skipped. Say so explicitly in the report header.
 - **Neither**: stop and tell the user this skill audits Ruby/Rails projects.
 
+**Ruby version trap.** A `.ruby-version` (or `Gemfile`-pinned Ruby) often names a version not installed on this machine — common in unfamiliar or AI-generated repos, and it makes rubycritic and brakeman abort before producing output. The engines do static analysis and don't need the app's exact Ruby. If the pinned version is missing, run them under an available Ruby (e.g. set a temporary `.ruby-version`, or invoke via `rbenv local <installed>` / a system Ruby) rather than failing — and note the substitution in the report. Never install the pinned Ruby just to satisfy the lock.
+
 ## Step 1 — Install and run the engines
 
 Zero-dependency principle: the skill brings its own tools. Never touch the app's Gemfile.
