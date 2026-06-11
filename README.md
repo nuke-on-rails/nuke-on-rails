@@ -29,7 +29,7 @@
 
 ## What it is
 
-**Nuke on Rails** audits your Rails app the way a principal engineer would: it tells you *what to refactor, what's vulnerable, and in what order to fix it.* One open source skill (Claude Code and cross-agent) powered by three battle-tested engines and a catalog of lenses, with an LLM in the judge's seat.
+**Nuke on Rails** is an open-source **skill** for AI coding agents (Claude Code, Cursor, Codex, and more), not a gem you add to your Gemfile. It audits your Rails app the way a principal engineer would: *what to refactor, what's vulnerable, and in what order to fix it.* Under the hood: three battle-tested engines and a catalog of lenses, with an LLM in the judge's seat.
 
 Three engines, a stack of lenses, one verdict. Instead of stapling reports together, Nuke on Rails returns **a single list, ranked by impact**. An IDOR in your payments controller outranks a fat model; a high-churn fat model outranks a theoretical warning.
 
