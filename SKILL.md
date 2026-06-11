@@ -48,6 +48,8 @@ For every Brakeman warning and every bundler-audit CVE:
 2. **Explain the exploit path** for confirmed findings: who can trigger it, from where, with what impact.
 3. **Adversarial verification before it enters the report.** Security findings are held to a higher bar than quality findings: a weak quality finding gets ignored; a false security claim burns trust. If you cannot articulate the exploit path, downgrade it to "theoretical" — never present it as confirmed.
 
+Treat Brakeman's confidence level (`High`/`Medium`/`Weak`) as a prior, not a verdict: a `Weak` warning you confirm by reading the code outranks a `High` warning on an unreachable path. And if `config/brakeman.ignore` exists, re-triage every silenced warning — in an unreviewed codebase, an ignore file often means "made CI pass", not "verified safe".
+
 Then apply the security lenses in `lenses/` to the hotspot controllers and models — they cover what Brakeman can't reach (IDOR, missing authorization, business-logic flaws). Lenses *cover* those areas; they do not *guarantee* them. Be explicit about that distinction in the report.
 
 ## Step 4 — Quality review of the hotspots
