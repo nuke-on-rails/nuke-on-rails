@@ -17,6 +17,7 @@ The default `devise.rb` of a generated app is rarely touched. Check:
 
 - **`config.paranoid = false`** (the default): password-reset and confirmation responses reveal whether an e-mail exists — user enumeration. Recommend `paranoid = true`.
 - **`:lockable` not enabled**: unlimited password attempts; combined with no rate limiting (`rack-attack` absent), credential stuffing runs free.
+- **Throttle key not normalized like the login lookup**: if rack-attack throttles by raw `params[:email]` but auth downcases/strips before finding the user, an attacker varies case and whitespace (`Foo@x.com`, `foo@x.com `) to get a fresh throttle bucket per attempt — the rate limit is bypassed while still hitting one account. The throttle discriminator must normalize identically to the authentication path.
 - **`:timeoutable` not enabled**: sessions never expire.
 - **`config.password_length` lowered**, or `:validatable` removed without a replacement policy.
 - **`secret_key` / `pepper` hardcoded** in the initializer instead of credentials/ENV.
