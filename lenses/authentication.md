@@ -49,7 +49,7 @@ A confirmed flaw in authentication is account takeover or enumeration at scale �
 ## Preferred Remedies
 
 - Point to the specific Devise module or config line — these fixes are usually one line in `devise.rb`.
-- `secure_compare` for every secret comparison; digests for every stored token.
-- `rack-attack` for throttling login and reset endpoints.
+- `secure_compare` for every secret comparison; digests for every stored token. For password login, prefer Rails 7+ `User.authenticate_by(email:, password:)` — it's built to be timing-safe and resists enumeration, unlike a `find_by` + `authenticate` pair.
+- For throttling login/reset endpoints, the Rails 7.2+ built-in `rate_limit to:, within:, only:` in the controller is the native option (the throttle-key normalization caveat above applies to it too); `rack-attack` when you need cross-cutting or IP-level rules.
 - devise-security for password policy / session-limit requirements.
 - A request spec per auth rule: lockout locks, reset tokens expire, logout resets the session.
