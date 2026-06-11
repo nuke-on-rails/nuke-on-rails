@@ -87,8 +87,6 @@ skills add nuke-on-rails/nuke-on-rails
 
 It works across agents: Claude Code, Cursor, Codex, Gemini CLI, Warp, and more.
 
-> Don't want a global install? Prefix any command with `npx` instead: `npx skills add nuke-on-rails/nuke-on-rails`.
-
 **3. Run it** inside your agent:
 
 ```
@@ -102,12 +100,6 @@ Zero setup beyond that. The skill installs its own engines (rubycritic, Brakeman
 ```sh
 skills update nuke-on-rails
 ```
-
-## Design principles
-
-- **One impact-ranked report**, not tool sections.
-- **Adversarial verification** of every finding before it reaches the report. A false security claim is worse than a missed one.
-- **Pluggable lenses in plain markdown.** Contribute a new check with a text PR, no code required.
 
 ## Star History
 
