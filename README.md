@@ -20,7 +20,7 @@
 
 <p align="center">
   <a href="#what-it-is">What It Is</a> &nbsp;&bull;&nbsp;
-  <a href="#who-its-for">Who It's For</a> &nbsp;&bull;&nbsp;
+  <a href="#what-it-catches">What It Catches</a> &nbsp;&bull;&nbsp;
   <a href="#how-it-works">How It Works</a> &nbsp;&bull;&nbsp;
   <a href="#quick-start">Quick Start</a>
 </p>
@@ -29,45 +29,77 @@
 
 ## What it is
 
-**Nuke on Rails** is an open-source **skill** for AI coding agents (Claude Code, Cursor, Codex, and more), not a gem you add to your Gemfile. It audits your Rails app the way a principal engineer would: *what to refactor, what's vulnerable, and in what order to fix it.* Under the hood: three battle-tested engines and a catalog of lenses, with an LLM in the judge's seat.
+**Nuke on Rails** is an open-source **skill** for AI coding agents (Claude Code, Cursor, Codex, and more), not a gem you add to your Gemfile. It audits your Rails app the way a principal engineer would: *what to refactor, what's vulnerable, and in what order to fix it.*
 
-Three engines, a stack of lenses, one verdict. Instead of stapling reports together, Nuke on Rails returns **a single list, ranked by impact**. An IDOR in your payments controller outranks a fat model; a high-churn fat model outranks a theoretical warning.
+Instead of stapling separate tool reports together, it returns **a single list, ranked by impact**. An IDOR in your payments controller outranks a fat model; a high-churn fat model outranks a theoretical warning.
 
-RuboCop, Brakeman and rubycritic **list** problems. Nuke on Rails **decides the order**.
+Scanners list problems. Nuke on Rails decides the order.
 
-## Who It's For
+## What it catches
 
-- **Rails developers** who want a principal-engineer-grade audit on demand.
-- **Vibecoders.** If you built your Rails app with AI and can't fully review the code yourself, this is the safety check you didn't know you needed: mass assignment, missing authorization, IDOR, gems with known CVEs.
+Coverage maps to the **OWASP Top 10 2025**. Each area is a [lens](lenses/): a plain-markdown check the audit applies on top of the scanners.
 
-Plain Ruby projects (gems, CLIs) work too with graceful degradation: rubycritic and bundler-audit run, Brakeman is skipped.
+**[Access control & IDOR](lenses/authorization.md)**
+- Records loaded by id without ownership scoping (the canonical payments / orders / invoices case)
+- Authorization missing where authentication exists (logged-in is not allowed-to)
+- Mass assignment: `permit!`, role escalation, nested attributes, raw-Hash bypass
+- Records leaked through form dropdowns and serializers
+- Cross-tenant leaks in multi-tenant apps; routes exposing actions that shouldn't be public
 
-## How It Works
+**[Authentication & sessions](lenses/authentication.md)**
+- Devise misconfig: user enumeration, no lockout, sessions that never expire, weak password policy
+- Session fixation and missing cookie flags (`secure` / `httponly` / `SameSite`)
+- Timing attacks and type-juggling on token and credential lookups
+- Tokens stored in plaintext or without expiry; rate-limit / throttle bypass
+- Custom Warden strategy bugs, scope confusion, impersonation gaps; JWT pitfalls (`none` alg, no expiry)
 
-Nuke on Rails runs three deterministic engines, widened by a catalog of **lenses** that reach what static analysis can't:
+**[Secrets](lenses/secrets.md)**
+- `master.key`, credentials keys, or `.env` committed to git (including in history)
+- Hardcoded API keys (Stripe, AWS, Twilio…) in code and initializers
+- Secrets in seeds, fixtures, or `database.yml`; secret-as-ENV-fallback
 
-- **[Rubycritic](https://github.com/whitesmith/rubycritic)** for **code quality**. The churn × complexity quadrant decides where attention goes first.
-- **[Brakeman](https://brakemanscanner.org/)** for **security**. The LLM triages every warning: kills false positives, explains the real exploit path.
-- **[Bundler-audit](https://github.com/rubysec/bundler-audit)** + **[Ruby_audit](https://github.com/civisanalytics/ruby_audit)** for **known CVEs** in your gems and in the Ruby version itself.
-- **[Authorization](lenses/authorization.md)** : IDOR, missing authorization, mass assignment, nested-attribute and form-helper leaks.
-- **[Authentication](lenses/authentication.md)** : Devise misconfig, custom Warden strategies, session fixation, timing attacks, throttle bypass.
-- **[Secrets](lenses/secrets.md)** : committed keys, hardcoded credentials, `.env` in version control.
-- **[Cryptography](lenses/cryptography.md)** : encryption oracles, hand-rolled crypto, weak hashing, plaintext sensitive columns.
-- **[Hardening](lenses/hardening.md)** : TLS and HSTS, CSP, CSRF config, unauthenticated mounted dashboards, backing-service TLS.
-- **[API](lenses/api.md)** : JSON over-exposure, CORS, GraphQL depth and introspection, XXE, OAuth flows.
-- **[Logging](lenses/logging.md)** : sensitive data in logs, missing audit trail on critical events, PII leaking into LLM prompts.
-- **[CVE](lenses/cve.md)** : JavaScript deps, day-zero web cross-checks, end-of-life Ruby or Rails versions.
-- **[Code-quality](lenses/code-quality.md)** : fat models, callback-driven logic, rug concerns, spaghetti branching. The thermo-nuclear quality bar, translated to Rails.
+**[Cryptography](lenses/cryptography.md)**
+- Encryption oracles (one crypto routine reused for trust tokens and user data)
+- Hand-rolled crypto instead of Rails primitives; static IVs; unauthenticated cipher modes
+- Weak password hashing (MD5/SHA); sensitive columns (CPF, SSN, bank, health) stored in plaintext
 
-The first three are the deterministic engines; the rest are **lenses**, plain-markdown checks covering the OWASP Top 10 2025. The community grows the catalog: a new check is a text-only PR, no code required.
+**[Configuration & hardening](lenses/hardening.md)**
+- `force_ssl` / HSTS off; backing-service traffic (Postgres, Redis) in cleartext
+- CSP missing or disabled; CSRF skipped on cookie-authenticated actions; host-header injection
+- Unauthenticated mounted dashboards (Sidekiq, PgHero, Flipper)
+- Debug / console gems shipped to production (a remote-code-execution surface)
+- Stack traces to users, unsafe uploads, stored XSS via markdown rendering
 
-On every run, the skill:
+**[API surface](lenses/api.md)**
+- JSON over-exposure (`render json:` leaking token digests, role flags, PII)
+- Missing pagination (table dump and self-DoS); CORS wildcard with credentials; tokens in query strings
+- Exception leakage; unverified webhooks
+- GraphQL introspection and unbounded query depth/complexity; XXE and entity expansion; OAuth `redirect_uri` / `state` / scope flaws
+
+**[Logging & monitoring](lenses/logging.md)**
+- Sensitive data in logs (filter gaps, `puts` / logger dumps, unscrubbed error-tracker breadcrumbs)
+- PII sent to third-party and LLM calls
+- No audit trail on login, payment, privilege, and admin actions
+
+**[Dependencies & versions](lenses/cve.md)**
+- Known CVEs in your gems and in the Ruby version itself
+- JavaScript dependency advisories; insecure or unpinned gem sources
+- End-of-life Ruby or Rails (a critical compliance finding even with zero open CVEs)
+
+**[Code quality](lenses/code-quality.md)**
+- Fat models, callback-driven workflows, rug concerns, spaghetti branching, N+1, the churn × complexity hotspots
+
+The community grows the catalog: a new check is a markdown PR, no code required.
+
+## How it works
+
+Deterministic scanners do the scanning; the LLM is the judge, not the author. On every run the skill:
 
 1. **Detects** the project: full Rails app, plain Ruby (graceful degradation), or neither.
-2. **Runs the engines** and captures machine-readable output. It brings its own tools and never touches your Gemfile.
-3. **Picks the hotspots** with the churn × complexity quadrant, reading deeply where it matters instead of reviewing everything uniformly.
-4. **Triages and applies the lenses.** You are the judge, not the scanner: every finding is adversarially verified before it reaches the report, and security findings are held to a higher bar than quality ones.
-5. **Returns one impact-ranked report.** A plan a principal engineer would sign, not a tool dump.
+2. **Runs the scanners** and reads their machine-readable output. It brings its own tools and never touches your Gemfile.
+3. **Picks the hotspots** by churn × complexity, reading deeply where it matters instead of reviewing everything uniformly.
+4. **Triages**: it kills false positives by reading the actual code path, applies the lenses above, and adversarially verifies every security finding before it reaches the report. Anything it can't justify is downgraded to "theoretical," not sold as confirmed.
+5. **Returns one report, ranked by impact** — a plan a principal engineer would sign, not a tool dump.
 
 ## Quick Start
 
@@ -93,7 +125,7 @@ It works across agents: Claude Code, Cursor, Codex, Gemini CLI, Warp, and more.
 /nuke-on-rails
 ```
 
-Zero setup beyond that. The skill installs its own engines (rubycritic, Brakeman, bundler-audit, ruby_audit), detects Rails vs. plain Ruby, runs everything, and hands you the plan. It never touches your Gemfile.
+Zero setup beyond that. It installs its own tools, detects Rails vs. plain Ruby, runs everything, and hands you the plan. It never touches your Gemfile.
 
 **4. Update** when you want the latest lenses and fixes:
 
