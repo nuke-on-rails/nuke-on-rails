@@ -46,18 +46,18 @@ Plain Ruby projects (gems, CLIs) work too with graceful degradation: rubycritic 
 
 Nuke on Rails runs three deterministic engines, widened by a catalog of **lenses** that reach what static analysis can't:
 
-- **[rubycritic](https://github.com/whitesmith/rubycritic)** for **code quality**. The churn × complexity quadrant decides where attention goes first.
+- **[Rubycritic](https://github.com/whitesmith/rubycritic)** for **code quality**. The churn × complexity quadrant decides where attention goes first.
 - **[Brakeman](https://brakemanscanner.org/)** for **security**. The LLM triages every warning: kills false positives, explains the real exploit path.
-- **[bundler-audit](https://github.com/rubysec/bundler-audit)** + **[ruby_audit](https://github.com/civisanalytics/ruby_audit)** for **known CVEs** in your gems and in the Ruby version itself.
-- **[authorization](lenses/authorization.md)** : IDOR, missing authorization, mass assignment, nested-attribute and form-helper leaks.
-- **[authentication](lenses/authentication.md)** : Devise misconfig, custom Warden strategies, session fixation, timing attacks, throttle bypass.
-- **[secrets](lenses/secrets.md)** : committed keys, hardcoded credentials, `.env` in version control.
-- **[cryptography](lenses/cryptography.md)** : encryption oracles, hand-rolled crypto, weak hashing, plaintext sensitive columns.
-- **[hardening](lenses/hardening.md)** : TLS and HSTS, CSP, CSRF config, unauthenticated mounted dashboards, backing-service TLS.
-- **[api](lenses/api.md)** : JSON over-exposure, CORS, GraphQL depth and introspection, XXE, OAuth flows.
-- **[logging](lenses/logging.md)** : sensitive data in logs, missing audit trail on critical events, PII leaking into LLM prompts.
-- **[cve](lenses/cve.md)** : JavaScript deps, day-zero web cross-checks, end-of-life Ruby or Rails versions.
-- **[code-quality](lenses/code-quality.md)** : fat models, callback-driven logic, rug concerns, spaghetti branching. The thermo-nuclear quality bar, translated to Rails.
+- **[Bundler-audit](https://github.com/rubysec/bundler-audit)** + **[Ruby_audit](https://github.com/civisanalytics/ruby_audit)** for **known CVEs** in your gems and in the Ruby version itself.
+- **[Authorization](lenses/authorization.md)** : IDOR, missing authorization, mass assignment, nested-attribute and form-helper leaks.
+- **[Authentication](lenses/authentication.md)** : Devise misconfig, custom Warden strategies, session fixation, timing attacks, throttle bypass.
+- **[Secrets](lenses/secrets.md)** : committed keys, hardcoded credentials, `.env` in version control.
+- **[Cryptography](lenses/cryptography.md)** : encryption oracles, hand-rolled crypto, weak hashing, plaintext sensitive columns.
+- **[Hardening](lenses/hardening.md)** : TLS and HSTS, CSP, CSRF config, unauthenticated mounted dashboards, backing-service TLS.
+- **[API](lenses/api.md)** : JSON over-exposure, CORS, GraphQL depth and introspection, XXE, OAuth flows.
+- **[Logging](lenses/logging.md)** : sensitive data in logs, missing audit trail on critical events, PII leaking into LLM prompts.
+- **[CVE](lenses/cve.md)** : JavaScript deps, day-zero web cross-checks, end-of-life Ruby or Rails versions.
+- **[Code-quality](lenses/code-quality.md)** : fat models, callback-driven logic, rug concerns, spaghetti branching. The thermo-nuclear quality bar, translated to Rails.
 
 The first three are the deterministic engines; the rest are **lenses**, plain-markdown checks covering the OWASP Top 10 2025. The community grows the catalog: a new check is a text-only PR, no code required.
 
