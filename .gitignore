@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+._*
+
+# Internal docs — not for the public repo
+CLAUDE.md
+CLAUDE.local.md
+
+# Claude Code local settings
+.claude/settings.local.json
