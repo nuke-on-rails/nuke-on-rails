@@ -82,7 +82,7 @@ Apply `lenses/code-quality.md` — the thermo-nuclear standards, translated to t
 
 ## Step 5 — One impact-ranked report
 
-**Open with a short status banner** — just write it, don't print a "Status banner" label. A few lines of orientation: project type and Rails/Ruby versions (note any substitution, e.g. running under a different Ruby), whether git history made the churn quadrant reliable, the engines that ran with headline counts, and one honest line on coverage (lenses cover, they don't guarantee). Give it a dry, deadpan wit — it's a tool named *Nuke on Rails* ("The good news: the app isn't on fire. The bad news: I found the matches."). Humor lives in the framing only; every finding stays sober and precise.
+**Open with a short status banner** — just write it, don't print a "Status banner" label. A few lines of orientation: project type and Rails/Ruby versions (note any substitution, e.g. running under a different Ruby), whether git history made the churn quadrant reliable, the engines that ran with headline counts, and one honest line on coverage (lenses cover, they don't guarantee). Give it a dry, deadpan wit — it's a tool named *Nuke on Rails* (English example, for tone only: "The good news: the app isn't on fire. The bad news: I found the matches."). **Write the joke natively in the user's language** so it actually lands; never translate the example literally. Humor lives in the framing only; every finding stays sober and precise.
 
 Then the findings, as one list ranked by impact:
 
