@@ -53,19 +53,25 @@ Zero setup. The skill installs the engines, detects Rails vs. plain Ruby, runs e
 
 ## Lenses
 
-Lenses are where Nuke on Rails goes beyond the scanners. Each is a plain-markdown check that teaches the LLM what to look for, together covering the **OWASP Top 10 2025**:
+Lenses are where Nuke on Rails goes beyond the scanners. Each is a plain-markdown check that teaches the LLM what to look for, together covering the **OWASP Top 10 2025**.
 
-| Lens | Catches |
-|------|---------|
-| `authorization` | IDOR, missing authorization, mass assignment, nested-attribute and form-helper leaks |
-| `authentication` | Devise config, custom Warden strategies, session fixation, timing attacks |
-| `secrets` | committed keys, hardcoded credentials, `.env` in version control |
-| `cve` | gem and Ruby CVEs, JS deps, day-zero cross-checks, end-of-life versions |
-| `hardening` | TLS, CSP, CSRF config, mounted dashboards, backing-service TLS |
-| `api` | JSON over-exposure, CORS, GraphQL, XXE, OAuth flows |
-| `cryptography` | encryption oracles, weak hashing, plaintext sensitive columns |
-| `logging` | sensitive data in logs, missing audit trails, PII sent to LLMs |
-| `code-quality` | fat models, callback chains, spaghetti, the thermo-nuclear quality bar |
+### 🔒 Security
+
+- **[authorization](lenses/authorization.md)** : IDOR, missing authorization, mass assignment, nested-attribute and form-helper leaks.
+- **[authentication](lenses/authentication.md)** : Devise misconfig, custom Warden strategies, session fixation, timing attacks, throttle bypass.
+- **[secrets](lenses/secrets.md)** : committed keys, hardcoded credentials, `.env` in version control. Rotate-first remedies.
+- **[cryptography](lenses/cryptography.md)** : encryption oracles, hand-rolled crypto, weak hashing, plaintext sensitive columns.
+- **[hardening](lenses/hardening.md)** : TLS and HSTS, CSP, CSRF config, unauthenticated mounted dashboards, backing-service TLS.
+- **[api](lenses/api.md)** : JSON over-exposure, CORS, GraphQL depth and introspection, XXE, OAuth flows.
+- **[logging](lenses/logging.md)** : sensitive data in logs, missing audit trail on critical events, PII leaking into LLM prompts.
+
+### 📦 Dependencies
+
+- **[cve](lenses/cve.md)** : known CVEs in gems and in the Ruby version, JavaScript deps, day-zero web cross-checks, end-of-life Ruby or Rails.
+
+### 🧹 Code Quality
+
+- **[code-quality](lenses/code-quality.md)** : fat models, callback-driven logic, rug concerns, spaghetti branching. The thermo-nuclear quality bar, translated to Rails.
 
 The maintainer owns the engine; the community grows the catalog. **Contribute a new check with a text-only PR, no code required.**
 
@@ -89,12 +95,6 @@ Plain Ruby projects (gems, CLIs) work too with graceful degradation: rubycritic 
 - **One impact-ranked report**, not tool sections.
 - **Adversarial verification** of every finding before it reaches the report. A false security claim is worse than a missed one.
 - **Pluggable lenses in plain markdown.** Contribute a new check with a text PR, no code required.
-
-## Credits
-
-The name came from [Ton](https://github.com/devton), the project's first contributor.
-
-Maintained by Alan.
 
 ## Star History
 
