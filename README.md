@@ -1,10 +1,8 @@
 <div align="center">
 
-# Nuke on Rails
+### The security & health check for your Rails app — one command, one impact-ranked action plan.
 
 <img src="assets/nuke-on-rails.png" alt="Nuke on Rails — a steam train hauling a nuclear bomb through the desert as a mushroom cloud erupts" width="100%">
-
-**The security & health check for your Rails app — one command, one impact-ranked action plan.**
 
 [![License: MIT](https://img.shields.io/badge/LICENSE-MIT-22c55e?style=for-the-badge)](LICENSE)
 [![Built for Claude Code](https://img.shields.io/badge/BUILT%20FOR-CLAUDE%20CODE-black?style=for-the-badge)](https://claude.com/claude-code)
