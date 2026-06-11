@@ -91,6 +91,7 @@ For every hotspot file, ask:
 ## What to Flag Aggressively
 
 - A complicated implementation where a cleaner reframing could delete whole categories of complexity.
+- Refactors that move code around but fail to reduce the number of concepts a reader must hold in their head.
 - Files past 1,000 lines, especially when cohesive pieces could be split out.
 - One-off booleans, nullable modes, or flags that complicate existing control flow.
 - Feature-specific logic leaking into general-purpose modules.
@@ -101,12 +102,15 @@ For every hotspot file, ask:
 - "Temporary" branching that has clearly become permanent debt.
 - Bespoke helpers where the codebase already has a canonical utility for the job.
 - Callback chains implementing business workflows.
+- Sequential flow where obviously independent work could be simpler and clearer run in parallel (or in a background job).
+- Partial-update logic that leaves state less atomic than necessary.
 - Business rules, permissions, or sensitive-data handling without test coverage.
 
 ## Preferred Remedies
 
 - Delete a whole layer of indirection rather than polishing it.
 - Reframe the state model so conditionals disappear instead of getting centralized.
+- Change the ownership boundary so the feature becomes a natural extension of an existing abstraction.
 - Turn special-case logic into a simpler default flow with fewer exceptions.
 - Extract a PORO, service object, query object, form object, or pure function.
 - Split a large file into smaller focused modules — by domain concept, not by line count.
@@ -115,14 +119,41 @@ For every hotspot file, ask:
 - Move callback side effects into an explicit object the caller invokes.
 - Collapse duplicate branches into a single clearer flow.
 - Reuse the existing canonical helper instead of introducing a near-duplicate.
+- Restructure related updates into a more atomic flow when partial state would be harder to reason about.
 - Add tests before touching business rules that have no coverage.
 
 Do not be satisfied with "maybe rename this" feedback when the real issue is structural.
 Do not be satisfied with a merely cleaner version of the same messy idea if there is a plausible path to a much simpler idea.
 
+## Severity Bar
+
+Treat these as presumptive top-severity quality findings unless the code clearly justifies them:
+
+- A lot of incidental complexity preserved where there is a plausible code-judo move that would delete it.
+- A file well past 1,000 lines whose cohesive pieces could clearly be split out.
+- Ad-hoc branching that makes a core flow tangled, or feature checks scattered across shared code.
+- An unnecessary abstraction, wrapper, or hash-shaped contract that makes the design more indirect than the direct flow.
+- A duplicated helper, or logic living in the wrong layer when there is a clear canonical home.
+- Business rules or authorization without test coverage (authorization gaps also go to the security side).
+
+Do not approve a hotspot as "fine" merely because behavior seems correct. The bar is: no clear structural problem, no obvious missed opportunity for a dramatic simplification, no unjustified file-size explosion, no spaghetti branching, no magic that obscures the design, and critical rules under test.
+
 ## Tone and Output
 
 Be direct, serious, and demanding about quality. Do not be rude, but do not soften major maintainability issues into mild suggestions. If the code is messy, say so clearly; if there is a dramatic simplification available, say that clearly too.
+
+Phrase findings the way a principal engineer would in review:
+
+- `this file is past 1k lines and mixes three domains. decompose it first — here's the seam.`
+- `this is another special-case branch in an already busy flow. move it behind its own abstraction.`
+- `this works, but it makes the surrounding code more spaghetti. keep the behavior, restructure the implementation.`
+- `this looks like feature logic leaking into a shared path. isolate it.`
+- `this abstraction isn't earning its keep. keep the direct flow.`
+- `this callback chain implements a workflow invisibly. make it an explicit object the caller invokes.`
+- `this is a bespoke helper for something the codebase already has. reuse the canonical one.`
+- `there's a code-judo move here: reframe the model and these branches disappear.`
+- `this refactor moves complexity around but doesn't delete it. the model itself can be simpler.`
+- `this business rule has no test covering its critical cases.`
 
 Prioritize findings in this order:
 
