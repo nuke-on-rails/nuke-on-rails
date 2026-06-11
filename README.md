@@ -1,6 +1,21 @@
+<div align="center">
+
 # Nuke on Rails
 
-> The security & health check for your Rails app — one command, one impact-ranked action plan.
+### The security & health check for your Rails app — one command, one impact-ranked action plan.
+
+---
+
+<img src="assets/nuke-on-rails.png" alt="Nuke on Rails" width="520">
+
+<br>
+
+[![License: MIT](https://img.shields.io/badge/LICENSE-MIT-22c55e?style=for-the-badge)](LICENSE)
+[![Built for Claude Code](https://img.shields.io/badge/BUILT%20FOR-CLAUDE%20CODE-black?style=for-the-badge)](https://claude.com/claude-code)
+[![Follow on X](https://img.shields.io/badge/FOLLOW%20ON-X-black?style=for-the-badge&logo=x)](https://x.com/)
+[![Follow on LinkedIn](https://img.shields.io/badge/FOLLOW%20ON-LINKEDIN-0a66c2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/)
+
+</div>
 
 ## What it is
 
