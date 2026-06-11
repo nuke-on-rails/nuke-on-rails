@@ -71,17 +71,27 @@ On every run, the skill:
 
 ## Quick Start
 
+**1. Install the skill** (from your project root):
+
 ```sh
 npx skills add nuke-on-rails/nuke-on-rails
 ```
 
-Then, inside your agent:
+It installs through the [skills](https://skills.sh) CLI and works across agents: Claude Code, Cursor, Codex, Gemini CLI, Warp, and more.
+
+**2. Run it** inside your agent:
 
 ```
 /nuke-on-rails
 ```
 
-Zero setup. The skill installs the engines, detects Rails vs. plain Ruby, runs everything, and hands you the plan.
+Zero setup beyond that. The skill installs its own engines (rubycritic, Brakeman, bundler-audit, ruby_audit), detects Rails vs. plain Ruby, runs everything, and hands you the plan. It never touches your Gemfile.
+
+**3. Update** when you want the latest lenses and fixes:
+
+```sh
+npx skills update nuke-on-rails
+```
 
 ## Design principles
 
