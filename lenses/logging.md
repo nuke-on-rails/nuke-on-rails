@@ -9,6 +9,7 @@ Reference: Rails Security Guide §Logging and OWASP A09.
 - **`config.filter_parameters` missing the app's real secrets.** Rails filters `:password` by default, but not tokens, API keys, `:ssn`, `:bank_account_num`, card data, `:otp`, or auth headers — those land in plaintext in production logs. Read the models' sensitive columns and confirm each is filtered. This is the highest-yield check here.
 - **Manual `Rails.logger.info`/`puts`/`p` dumping params, user objects, or full request bodies** in controllers and jobs — bypasses parameter filtering entirely.
 - **Full exception objects logged with their data**, or sensitive values in error-tracking breadcrumbs (Sentry/Rollbar) without scrubbing.
+- **Unredacted user data sent to third-party services — especially LLMs.** A controller or job that pipes `params[:message]`, a user record, or free text straight into an OpenAI/Anthropic/external API call leaks PII outside the trust boundary. This is a signature flaw of AI-built apps (they integrate AI casually) and no engine sees it. Trace user data into outbound HTTP/SDK calls; the named remedy is redacting PII first (e.g. the `top_secret` gem: filter before the call, restore after).
 - **Tokens/session ids logged** by custom middleware or `before_action` debug code left in.
 
 ## Missing security logging (the blind spot)
