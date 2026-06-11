@@ -28,6 +28,7 @@ Three deterministic engines + LLM as judge:
 - **One impact-ranked report**, never tool sections stapled together. An IDOR in a payments controller outranks a fat model; a high-churn fat model outranks a theoretical warning.
 - **Lenses are plain markdown** (`lenses/code-quality.md`, `lenses/authorization.md`, `lenses/authentication.md`, …). The community contributes checks via text-only PRs; the maintainer owns the engine (the RuboCop/cops model).
 - **The canonical source for security lenses is the official Rails Security Guide** (https://guides.rubyonrails.org/security.html) — distill from it, link findings to its sections, and re-check lenses against it on new Rails releases. Prefer it over community checklists, which go stale.
+- **Coverage is tracked against the OWASP Top 10 2025**, with OWASP RailsGoat (and its Rails 8 wiki) as the worked-example corpus and regression target. Current mapping: A01→authorization, A02→hardening, A03→cve, A04→cryptography, A05→Brakeman, A06→code-quality, A07→authentication, A08→Brakeman (mass assignment/deserialization), A09→logging, A10→hardening+code-quality. A category with no strong owner is the next lens to write.
 
 ## Internal docs
 

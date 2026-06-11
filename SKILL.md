@@ -65,6 +65,8 @@ Then apply the security lenses to the routes file, the sensitive controllers and
 - `lenses/secrets.md` — committed keys and hardcoded credentials
 - `lenses/hardening.md` — TLS, CSP, CSRF config, mounted dashboards, uploads
 - `lenses/api.md` — JSON over-exposure, CORS, rate limiting, webhooks (skip if the app has no JSON endpoints)
+- `lenses/cryptography.md` — encryption oracles, hand-rolled crypto, weak hashing, plaintext sensitive columns
+- `lenses/logging.md` — sensitive data in logs, missing audit trail on security-critical events
 
 They cover what Brakeman can't reach. Lenses *cover* those areas; they do not *guarantee* them. Be explicit about that distinction in the report.
 

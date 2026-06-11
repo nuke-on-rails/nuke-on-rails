@@ -1,0 +1,22 @@
+# Lens: Logging & Monitoring Failures
+
+OWASP 2025 A09 — the one Top 10 category no engine and no other lens covers, and the one RailsGoat itself barely plants because it's a failure of *absence*. Two opposite failure modes: too little logging (you can't tell you were breached) and too much (the logs themselves become the leak). Read `config/environments/production.rb`, `config/initializers/filter_parameter_logging.rb`, the auth and payment controllers, and the Gemfile (for an audit-trail gem).
+
+Reference: Rails Security Guide §Logging and OWASP A09.
+
+## Sensitive data in logs (the leak)
+
+- **`config.filter_parameters` missing the app's real secrets.** Rails filters `:password` by default, but not tokens, API keys, `:ssn`, `:bank_account_num`, card data, `:otp`, or auth headers — those land in plaintext in production logs. Read the models' sensitive columns and confirm each is filtered. This is the highest-yield check here.
+- **Manual `Rails.logger.info`/`puts`/`p` dumping params, user objects, or full request bodies** in controllers and jobs — bypasses parameter filtering entirely.
+- **Full exception objects logged with their data**, or sensitive values in error-tracking breadcrumbs (Sentry/Rollbar) without scrubbing.
+- **Tokens/session ids logged** by custom middleware or `before_action` debug code left in.
+
+## Missing security logging (the blind spot)
+
+- **No audit trail on security-critical events**: login success/failure, password/email change, privilege change, payment, admin actions. If an attacker can act and nothing records it, detection and forensics are impossible. Flag the absence on money/account paths specifically.
+- **Failed-authentication attempts not recorded** — no way to see credential stuffing in progress (pairs with the brute-force checks in `lenses/authentication.md` and rack-attack).
+- **No distinction in logs between a user acting on their own data and on someone else's** — makes IDOR exploitation invisible after the fact.
+
+## Severity and remedies
+
+Sensitive data in logs is the confirmable finding here — state what leaks and where (prod logs, error tracker). Rank it with the hardening tier, or higher if it's credentials/PII at volume. Missing audit logging is a real but lower-severity design finding — frame it as "you would not detect this attack", not as an exploit. Remedies: add the fields to `filter_parameters`; scrub error-tracker payloads; add structured audit logging (or a gem like `audited`/`paper_trail`) on the security-critical events; record auth failures. Keep the report honest — absence-of-logging is "you're blind here", never "you're exploited here".
