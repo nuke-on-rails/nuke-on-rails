@@ -10,7 +10,7 @@ Nuke on Rails is an open source skill (Claude Code and cross-agent) that audits 
 
 ## Hard rules
 
-- **Published artifacts are written in fluent English** — README, SKILL.md, lenses, issues, PRs, releases, commit messages. The audience is the global Rails community. **The runtime audit is the exception: the generated report and step announcements match the language the user writes in.**
+- **Published artifacts are written in fluent English** — README, SKILL.md, the arsenal, issues, PRs, releases, commit messages. The audience is the global Rails community. **The runtime audit is the exception: the generated report and step announcements match the language the user writes in.**
 - **Naming:** "Nuke on Rails" as the brand in prose; `nuke-on-rails` (kebab-case) in code, paths and commands; never `nukeonrails`.
 - **Security findings are held to a higher bar than quality findings.** A weak quality finding gets ignored; a false security claim in a report burns trust. Every security finding must survive adversarial verification before reaching the report.
 
@@ -26,9 +26,9 @@ Three deterministic engines + LLM as judge:
 
 - **Zero-dependency:** the skill installs the engines itself, detects Rails vs. plain Ruby, and degrades gracefully (plain Ruby: rubycritic + bundler-audit run, Brakeman is skipped).
 - **One impact-ranked report**, never tool sections stapled together. An IDOR in a payments controller outranks a fat model; a high-churn fat model outranks a theoretical warning.
-- **Lenses are plain markdown** (`lenses/code-quality.md`, `lenses/authorization.md`, `lenses/authentication.md`, …). The community contributes checks via text-only PRs; the maintainer owns the engine (the RuboCop/cops model).
-- **The canonical source for security lenses is the official Rails Security Guide** (https://guides.rubyonrails.org/security.html) — distill from it, link findings to its sections, and re-check lenses against it on new Rails releases. Prefer it over community checklists, which go stale.
-- **Coverage is tracked against the OWASP Top 10 2025**, with OWASP RailsGoat (and its Rails 8 wiki) as the worked-example corpus and regression target. Current mapping: A01→authorization, A02→hardening, A03→cve, A04→cryptography, A05→Brakeman, A06→code-quality, A07→authentication, A08→Brakeman (mass assignment/deserialization), A09→logging, A10→hardening+code-quality. A category with no strong owner is the next lens to write.
+- **The arsenal is plain markdown** (`arsenal/code-quality.md`, `arsenal/authorization.md`, `arsenal/authentication.md`, …) — the folder is the arsenal, each file is one weapon. The community contributes checks via text-only PRs; the maintainer owns the engine (the RuboCop/cops model).
+- **The canonical source for the security arsenal is the official Rails Security Guide** (https://guides.rubyonrails.org/security.html) — distill from it, link findings to its sections, and re-check the arsenal against it on new Rails releases. Prefer it over community checklists, which go stale. (Exception: AI/LLM risks aren't in the Rails guide — `arsenal/ai.md` distills from the OWASP LLM Top 10 and the OWASP LLM Prompt Injection Prevention Cheat Sheet.)
+- **Coverage is tracked against the OWASP Top 10 2025**, with OWASP RailsGoat (and its Rails 8 wiki) as the worked-example corpus and regression target. Current mapping: A01→authorization, A02→hardening, A03→cve, A04→cryptography, A05→Brakeman, A06→code-quality, A07→authentication, A08→Brakeman (mass assignment/deserialization), A09→logging, A10→hardening+code-quality. A category with no strong owner is the next weapon to add. **AI/LLM integration is tracked against the OWASP LLM Top 10 2025** (LLM01 prompt injection, LLM02 sensitive-info disclosure, LLM05 improper output handling, LLM06 excessive agency, LLM10 unbounded consumption), cutting across web A03/A06/A09; owned by `arsenal/ai.md`.
 
 ## Internal docs
 

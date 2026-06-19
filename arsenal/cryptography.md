@@ -14,8 +14,8 @@ The highest-value finding in this lens: **one encryption/signing routine reused 
 - **Static or reused IV.** A fixed `iv` (or no IV) means identical plaintext yields identical ciphertext — pattern leakage. IVs must be random per encryption.
 - **Unauthenticated cipher mode.** AES-CBC (and any mode without a MAC) lets ciphertext be tampered undetected — prefer authenticated encryption (AES-GCM, or XChaCha20-Poly1305 via RbNaCl). Flag `aes-256-cbc` in hand-rolled crypto.
 - **Weak or fast hashing for passwords.** MD5/SHA1/SHA256 for password storage (RailsGoat stores an MD5-looking digest); passwords need bcrypt/scrypt/argon2 via `has_secure_password`. Fast hashes are for integrity, not passwords.
-- **Hardcoded keys/IVs** in `lib/` or initializers instead of Rails credentials / ENV (overlaps `lenses/secrets.md`).
-- **Token comparison with `==`** instead of `ActiveSupport::SecurityUtils.secure_compare` — timing attack (overlaps `lenses/authentication.md`).
+- **Hardcoded keys/IVs** in `lib/` or initializers instead of Rails credentials / ENV (overlaps `arsenal/secrets.md`).
+- **Token comparison with `==`** instead of `ActiveSupport::SecurityUtils.secure_compare` — timing attack (overlaps `arsenal/authentication.md`).
 - **Sensitive columns stored in plaintext** — bank/tax/health/document numbers without `encrypts :column` (ActiveRecord Encryption). Read the schema for obviously sensitive column names with no encryption.
 - **Reversible encryption where a one-way hash belongs** — if a value is only ever compared, not displayed, it should be hashed, not decryptable.
 

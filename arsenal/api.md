@@ -5,14 +5,14 @@ For JSON endpoints — API-mode apps, `/api` namespaces, or any controller that 
 ## Over-exposure — the API-side IDOR
 
 - **`render json: @user` (or `.to_json` without `only:`/serializer)** ships every column: token digests, role flags, internal ids, PII. Read the model's schema next to the render call and name the columns that leak. This is the single highest-yield check in this lens.
-- Serializers/jbuilder views with one shape for every consumer — admin-only fields delivered to regular users (pairs with `lenses/authorization.md`).
+- Serializers/jbuilder views with one shape for every consumer — admin-only fields delivered to regular users (pairs with `arsenal/authorization.md`).
 - Associations included wholesale (`include:`, nested serializers) — the leak hides one level deep.
 - Index endpoints with **no pagination**: `Model.all.to_json` is a table dump — data exposure and a self-DoS in one line.
 
 ## Cross-origin and abuse
 
 - **CORS**: `rack-cors` with `origins '*'` *combined with* `credentials: true`, or code reflecting the request's `Origin` header back. Wildcard without credentials is often fine for a public API — confirm intent before flagging.
-- **No rate limiting** (rack-attack absent) on auth endpoints, token issuance, and expensive queries — pairs with the brute-force checks in `lenses/authentication.md`.
+- **No rate limiting** (rack-attack absent) on auth endpoints, token issuance, and expensive queries — pairs with the brute-force checks in `arsenal/authentication.md`.
 
 ## Tokens and errors
 

@@ -1,6 +1,6 @@
 ---
 name: nuke-on-rails
-description: Full health and security audit for Rails apps, the review a principal engineer would do. Runs rubycritic, Brakeman, bundler-audit and ruby_audit, triages every finding with the LLM as judge, applies OWASP Top 10 lenses for what scanners miss, and returns one impact-ranked action plan. Use for a Rails project audit, a security and health check, "nuke on rails", or a deep review of a vibecoded Rails app.
+description: Full health and security audit for Rails apps, the review a principal engineer would do. Runs rubycritic, Brakeman, bundler-audit and ruby_audit, triages every finding with the LLM as judge, brings an OWASP Top 10 arsenal of checks for what scanners miss, and returns one impact-ranked action plan. Use for a Rails project audit, a security and health check, "nuke on rails", or a deep review of a vibecoded Rails app.
 disable-model-invocation: true
 ---
 
@@ -8,9 +8,9 @@ disable-model-invocation: true
 
 A full project health audit for Rails apps: *what to refactor, what's vulnerable, and in what order to attack it*. Three deterministic engines do the scanning; you are the judge. The output is **one single list, prioritized by impact**, never tool sections stapled together.
 
-**Respond in the user's language.** Write the step announcements and the final report in whatever language the user writes in. (These instructions and the lenses are authored in English, but the audit you produce should speak to whoever ran it.)
+**Respond in the user's language.** Write the step announcements and the final report in whatever language the user writes in. (These instructions and the arsenal are authored in English, but the audit you produce should speak to whoever ran it.)
 
-This audit takes minutes, so announce each step as you begin it and the user sees progress. The examples below show the format in English; translate them to the user's language: `🔭 Step 1/5 — installing & running engines…`, `🎯 Step 2 — picking hotspots (churn × complexity)…`, `⚖️ Step 3 — triaging N findings & applying lenses…`, `📋 Step 5 — building the impact-ranked report…`. One short line per step; the visible tool calls fill in the rest.
+This audit takes minutes, so announce each step as you begin it and the user sees progress. The examples below show the format in English; translate them to the user's language: `🔭 Step 1/5 — installing & running engines…`, `🎯 Step 2 — picking hotspots (churn × complexity)…`, `⚖️ Step 3 — triaging N findings & bringing the arsenal…`, `📋 Step 5 — building the impact-ranked report…`. One short line per step; the visible tool calls fill in the rest.
 
 ## Step 0 — Detect the project
 
@@ -62,23 +62,24 @@ For every Brakeman warning and every bundler-audit CVE:
 
 Treat Brakeman's confidence level (`High`/`Medium`/`Weak`) as a prior, not a verdict: a `Weak` warning you confirm by reading the code outranks a `High` warning on an unreachable path. And if `config/brakeman.ignore` exists, re-triage every silenced warning — in an unreviewed codebase, an ignore file often means "made CI pass", not "verified safe".
 
-For dependency and Ruby-version CVEs, apply `lenses/cve.md` to the bundler-audit and ruby_audit output — it covers deduping, severity priors, reachability triage, insecure gem sources, and the network cross-checks (day-zero and second-opinion) that close the advisory database's lag and coverage gaps.
+For dependency and Ruby-version CVEs, apply `arsenal/cve.md` to the bundler-audit and ruby_audit output — it covers deduping, severity priors, reachability triage, insecure gem sources, and the network cross-checks (day-zero and second-opinion) that close the advisory database's lag and coverage gaps.
 
-Then apply the security lenses to the routes file, the sensitive controllers and models, and the production config:
+Then bring the security arsenal to the routes file, the sensitive controllers and models, and the production config:
 
-- `lenses/authorization.md` — IDOR, missing authorization, attack surface
-- `lenses/authentication.md` — auth stack, Devise config, custom strategies, sessions
-- `lenses/secrets.md` — committed keys and hardcoded credentials
-- `lenses/hardening.md` — TLS, CSP, CSRF config, mounted dashboards, uploads
-- `lenses/api.md` — JSON over-exposure, CORS, rate limiting, webhooks (skip if the app has no JSON endpoints)
-- `lenses/cryptography.md` — encryption oracles, hand-rolled crypto, weak hashing, plaintext sensitive columns
-- `lenses/logging.md` — sensitive data in logs, missing audit trail on security-critical events
+- `arsenal/authorization.md` — IDOR, missing authorization, attack surface
+- `arsenal/authentication.md` — auth stack, Devise config, custom strategies, sessions
+- `arsenal/secrets.md` — committed keys and hardcoded credentials
+- `arsenal/hardening.md` — TLS, CSP, CSRF config, mounted dashboards, uploads
+- `arsenal/api.md` — JSON over-exposure, CORS, rate limiting, webhooks (skip if the app has no JSON endpoints)
+- `arsenal/cryptography.md` — encryption oracles, hand-rolled crypto, weak hashing, plaintext sensitive columns
+- `arsenal/logging.md` — sensitive data in logs, missing audit trail on security-critical events
+- `arsenal/ai.md` — prompt injection, LLM output rendered as XSS, PII leaked to model APIs, over-powered tool-use (skip if the app makes no LLM calls)
 
-They cover what Brakeman can't reach. Lenses *cover* those areas; they do not *guarantee* them. Be explicit about that distinction in the report.
+They cover what Brakeman can't reach. The arsenal *covers* those areas; it does not *guarantee* them. Be explicit about that distinction in the report.
 
 ## Step 4 — Quality review of the hotspots
 
-Apply `lenses/code-quality.md` — the thermo-nuclear standards, translated to the Rails idiom — to the hotspot files from Step 2. That lens is the default quality bar for this skill: ambitious structural findings, not cosmetic nits.
+Apply `arsenal/code-quality.md` — the thermo-nuclear standards, translated to the Rails idiom — to the hotspot files from Step 2. That check is the default quality bar for this skill: ambitious structural findings, not cosmetic nits.
 
 ## Step 5 — The report (output)
 
