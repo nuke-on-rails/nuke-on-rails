@@ -12,7 +12,7 @@ The model is RuboCop/cops: **the maintainer owns the engine (`SKILL.md`, the pip
 
 ## What a weapon is
 
-One file in `arsenal/` is one weapon (`arsenal/authorization.md`, `arsenal/jobs.md`, …). Each is a **weapon** a principal engineer brings to the audit: a short framing of the territory the scanners miss, then the concrete findings, then how to rank them. Copy `arsenal/_TEMPLATE.md` to start — it encodes the house structure.
+One file in `arsenal/` is one weapon (`arsenal/authorization.md`, `arsenal/jobs.md`, …). Each is a **weapon** a principal engineer brings to the audit: a short framing of the territory the scanners miss, then the concrete findings, then how to rank them. Copy `templates/_WEAPON.md` to start — it encodes the house structure.
 
 ### Non-negotiables for any check
 
@@ -29,7 +29,7 @@ A weak quality finding gets ignored; a false security claim in a report burns tr
 
 ```bash
 # New weapon:
-cp arsenal/_TEMPLATE.md arsenal/your-weapon.md
+cp templates/_WEAPON.md arsenal/your-weapon.md
 # then wire it in:
 #   1. SKILL.md  — add it to Step 3 (security) or Step 4 (quality/operational)
 #   2. README.md — add a <details> block to the arsenal list

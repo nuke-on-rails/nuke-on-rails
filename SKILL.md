@@ -92,9 +92,17 @@ And apply `arsenal/jobs.md` to `app/jobs/` and the enqueue sites — background-
 
 ## Step 5 — The report (output)
 
-This section is the single source of truth for how the report reads: language, tone, structure, and the closing summary. Write the whole report in the user's language (see the top of this file).
+This section governs *what goes in* the report and *how it's judged* — language, tone, ranking, and the closing summary. **The visual structure it's rendered in — terminal-native plaintext, no markdown — lives in `templates/_OUTPUT.md`; the report must match that skeleton.** Write the whole report in the user's language (see the top of this file).
 
 **Open with a short status banner** — just write it, don't print a "Status banner" label. A few lines of orientation: project type and Rails/Ruby versions (note any substitution, e.g. running under a different Ruby), whether git history made the churn quadrant reliable, the engines that ran with headline counts, and one honest line on coverage (weapons cover, they don't guarantee). Give it a dry, deadpan wit — it's a tool named *Nuke on Rails* (English example, for tone only: "The good news: the app isn't on fire. The bad news: I found the matches."). **Write the joke natively in the user's language** so it actually lands; never translate the example literally. Humor lives in the framing only; every finding stays sober and precise.
+
+Right after the banner, open the body with the **severity scoreboard** — the triaged counts on one inline line, count before the label (never a markdown table; see `templates/_OUTPUT.md`):
+
+```text
+🔴 1 Critical   🟠 4 High   🟡 6 Medium   🟢 5 Low
+```
+
+Dependency-risk totals and any end-of-life flag stay in the opening banner — don't repeat them here.
 
 Then the findings, as one list ranked by impact:
 
@@ -104,26 +112,15 @@ Then the findings, as one list ranked by impact:
 4. **Theoretical security warnings** that survived triage but lack a demonstrated exploit path.
 5. **Remaining quality findings**, worst first.
 
-**Keep each finding tight and scannable.** Lead with a one-line headline: severity, what it is, and where (`file:line`). Then a sentence or two, max, on why it matters here and the concrete fix. Show code only when a few lines make the point faster than words. No multi-paragraph exploit essays: a senior should grasp each finding in seconds and know the next move. **Tag each finding with the fix effort** — S (hours) / M (about a day) / L (multi-day) — so the plan can order by *leverage* (impact ÷ effort), not impact alone. When an issue recurs, cite the 2–5 strongest `file:line` locations and note "+ ~N similar", not every instance. Write the way Rails reads — friendly, direct, no ceremony. Don't print scaffolding labels ("Status banner", "Findings"); let the report flow.
+**Keep each finding tight, scannable, and in plain human language.** Problem and Solution read for a non-expert stakeholder *and* an exhausted senior — everyday words, no method names or line refs. Lead with a one-line headline: severity + what it is, in plain language (no finding number, no effort estimate). Then the plain-language problem and the concrete fix. Push the technical specifics — method names, line refs, the reachable exploit path, and any churn/complexity metrics — into an optional `Technical details` field (see `templates/_OUTPUT.md`); a finding with nothing concrete to prove omits it. Show code only when a few lines make the point faster than words. No multi-paragraph exploit essays: a senior should grasp each finding in seconds and know the next move. When an issue recurs, cite the 2–5 strongest `file:line` locations and note "+ ~N similar", not every instance. Write the way Rails reads — friendly, direct, no ceremony. Don't print scaffolding labels ("Status banner", "Findings"); let the report flow.
 
-**Close with a scoreboard and a plan** so the reader leaves with a number and a next move:
+**Close with the plan** so the reader leaves with a next move (the scoreboard already opened the body, up top):
 
-1. **A severity scoreboard** — counts at a glance, as a table:
+1. **Fix now** — ranked by **leverage**: the most risk or debt removed for the least *change*, not impact alone. A confirmed critical *and* a high-impact quick win (a version bump, a one-line config) both belong here; a broad, high-risk structural change drops to *Fix next* even when impactful. Don't estimate time — how long a fix takes depends on the team and their tooling; judge by scope and blast radius, and describe that in words. Tiebreakers: anything that unblocks other work (a verification baseline, characterization tests) floats up; a high-confidence security finding floats above an equivalent-leverage non-security one; prefer fixes with a clean way to verify them. Each a tight, parallel line — subject then the move — the "if you do nothing else" list.
+2. **Fix next** — the remaining high/medium, grouped tersely.
+3. **Biggest structural multiplier** — one line naming the single refactor that removes the most risk or debt at once.
 
-   | Severity | Count |
-   |----------|-------|
-   | 🔴 Critical | … |
-   | 🟠 High | … |
-   | 🟡 Medium | … |
-   | 🟢 Low | … |
-
-   Add a line beneath it for dependency risk (reachable CVEs, e.g. "92 advisories / 24 gems") and any end-of-life flag.
-
-2. **Fix now** — ranked by **leverage** (impact ÷ effort, discounted by fix-risk), not impact alone: a confirmed critical *and* a low-effort high-impact quick win both belong here; an L-effort, high-risk item drops to *Fix next* even when impactful. Tiebreakers: anything that unblocks other work (a verification baseline, characterization tests) floats up; a high-confidence security finding floats above an equivalent-leverage non-security one; prefer fixes with a clean way to verify them. Each one line with `file:line` and the move — the "if you do nothing else" list.
-3. **Fix next** — the remaining high/medium, grouped tersely.
-4. **Biggest structural multiplier** — one line naming the single refactor that removes the most risk or debt at once.
-
-If something was weighed and isn't worth doing, say so in one line — the reader should know it was considered, not missed.
+If the scanners raised things you ruled out, say so — but as **one compact line near the end** (name them, a one-word reason each: false positive / not reachable / dev-only / wrong target), never a verbose section. The reader should know the noise was checked, not missed.
 
 **The report is sensitive.** It enumerates live, confirmed vulnerabilities and their exploit paths — it belongs with the people who can fix the app, not a public issue tracker or an open channel. If findings are published anywhere shared or public, redact the security specifics (exploit path, credential location) first.
 
