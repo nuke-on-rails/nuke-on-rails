@@ -52,7 +52,7 @@ Then open a PR. Keep the diff focused — one weapon or one cohesive set of chec
 
 - A weapon for an OWASP category with no strong owner (see the map in `CLAUDE.md`).
 - Deepening an existing weapon: a new finding with a real, sanitized before/after from your own codebase.
-- A regression example from OWASP RailsGoat that a current weapon should have caught and didn't.
+- A regression example from OWASP RailsGoat (see `EVALS.md` for the must-catch checklist) that a current weapon should have caught and didn't.
 
 ## Hard rules (from `CLAUDE.md`)
 
