@@ -71,6 +71,17 @@ end
 # Many divergent types: delegated_type gives narrow per-type tables — but it does NOT restore FK integrity.
 ```
 
+## `uniqueness` validation without a database unique index
+
+`validates :x, uniqueness: true` is a check-then-insert: two concurrent requests can both pass the validation before either commits, then both insert — a duplicate row, under exactly the concurrency a threaded server (Puma) produces. The validation is fine for a friendly error message, but only a **database unique index** actually prevents the duplicate. Flag a uniqueness validation with no matching unique index in `db/schema.rb`.
+
+```ruby
+class User < ApplicationRecord
+  validates :email, uniqueness: true   # Problem — two concurrent requests both pass → duplicate rows
+end
+add_index :users, :email, unique: true # Fix — the DB index is what enforces it (keep the validation for the message)
+```
+
 ## `count > 0` / `present?` for a boolean check
 
 To answer "does any row exist", `exists?` issues the minimal query (`SELECT 1 … LIMIT 1`). `count > 0` runs a full `COUNT(*)`; `present?` loads the whole relation into memory first. Fine on a tiny table, a real cost on a large one.
