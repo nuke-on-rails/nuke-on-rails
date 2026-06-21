@@ -4,7 +4,7 @@ The canonical shape of the Step 5 report. **Pairs with `SKILL.md` Step 5**, whic
 
 The report is rendered to a **TERMINAL**, so it uses **no markdown** — no `#` headings, `**bold**`, `| tables |`, or `>` quotes; they print as literal junk. Hierarchy comes from divider rules, `▸`-anchored section titles, the hollow `▹` on finding fields, tree branches (`├─ └─`), and the severity emoji.
 
-Write the whole report in the **user's language**. The English below is the format demo only — the labels (`Problem` / `Solution` / `Files` / `Technical details`, `Scan`, `TL;DR`…) get translated too.
+Write the whole report in the **user's language** — and that includes **every label**. The English here is the demo only; translate the severity words (`Critical`/`High`/`Medium`/`Low`), the section titles (`SCOREBOARD`, `FIX NOW`, `FIX NEXT`, `BIGGEST STRUCTURAL MULTIPLIER`, `RULED OUT`, `NOTES`) and the finding fields (`Problem`/`Solution`/`Files`/`Technical details`). **Never emit an English label into a non-English report.** Only fixed tokens stay: the brand `NUKE ON RAILS`, emoji, file paths, code identifiers, CVE ids.
 
 Layout rules:
 - Everything flush **LEFT** — never indent inward (the reader copies straight out of the terminal).
@@ -39,8 +39,9 @@ The shape (this block is the demo — render it in the user's language):
 └─ <rubycritic score /N modules — churn-quadrant reliability if relevant>
 
 TL;DR
-<2–3 continuous sentences. Dry, deadpan wit in the framing; findings stay sober.
-The joke is written natively in the user's language — never a translated one.>
+<2–3 continuous sentences — a dry field report to the command (the recon-campaign voice
+of the step announcements). The campaign voice lives here and in the banner only; findings
+stay sober. Written natively in the user's language — never a translated one.>
 
 ⚠️  Confidential report (do not publish)
 
