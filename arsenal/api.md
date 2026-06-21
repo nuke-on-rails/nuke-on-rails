@@ -24,6 +24,13 @@ render inertia: "Posts/Show", props: { post: Post.find(params[:id]).as_json(only
 
 - **CORS**: `rack-cors` with `origins '*'` *combined with* `credentials: true`, or code reflecting the request's `Origin` header back. Wildcard without credentials is often fine for a public API — confirm intent before flagging.
 - **No rate limiting** (rack-attack absent) on auth endpoints, token issuance, and expensive queries — pairs with the brute-force checks in `arsenal/authentication.md`.
+- **ReDoS / user-controlled regex** — a regex with nested or overlapping quantifiers (`/^(\w+)+$/`, `(a|a)*`, `(.*)*`) matched against user input backtracks catastrophically: one request pegs a CPU (a DoS scanners catch only unreliably). Worse, `Regexp.new(params[:pattern])` lets the user *supply the regex* — ReDoS plus a match-anything bypass. Applies anywhere input reaches a regex — `params`, search, a model `format:` validation, not just APIs.
+
+```ruby
+Regexp.new(params[:q]) =~ text   # Problem — user supplies the regex: ReDoS + match-anything
+params[:q] =~ /^(\w+)+$/          # Problem — nested quantifier on user input → catastrophic backtracking
+Regexp.timeout = 1               # Fix (Ruby 3.2+) — a global regex timeout; and never build a regex from input
+```
 
 ```ruby
 # Problem — wildcard origin with credentials: any site makes authenticated requests as the user
