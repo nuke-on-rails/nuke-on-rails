@@ -55,6 +55,23 @@ class BackfillOrderStatus < ActiveRecord::Migration[8.0]
 end
 ```
 
+## Destructive data operations
+
+A migration runs automatically on every deploy that hasn't seen it — there is no confirmation prompt and no easy undo. A destructive data statement inside one (`TRUNCATE`, `DELETE`, `delete_all`/`destroy_all`, a `drop_table` on a table still holding data, or an `execute` that rewrites rows) is irreversible data loss waiting for the next deploy. Schema changes belong in migrations; one-off or destructive *data* changes belong in a rake task you run deliberately, with a backup and a chance to abort.
+
+```ruby
+# Problem — wipes a table on deploy, automatically, with no confirmation and no clean rollback
+class ResetOrders < ActiveRecord::Migration[8.0]
+  def up
+    execute "TRUNCATE orders"      # gone the moment this deploy ships
+    Order.insert_all(legacy_rows)
+  end
+end
+
+# Fix — keep destructive data work out of migrations: a guarded, re-runnable rake task you run on
+# purpose (after a backup), never a statement the deploy fires by itself
+```
+
 ## Deploy-ordering hazards (expand/contract)
 
 A rolling deploy runs the migration while old code is still serving requests. Two changes break that window:
