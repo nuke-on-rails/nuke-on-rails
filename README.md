@@ -240,7 +240,7 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 * Irreversible, non-rollback-safe migrations; missing indexes on foreign keys
 
 </details>
-The community grows the catalog: a new check is a markdown PR, no code required.
+The community grows the catalog: a new check is a markdown PR, no code required — see [CONTRIBUTING.md](CONTRIBUTING.md) and copy [`arsenal/_TEMPLATE.md`](arsenal/_TEMPLATE.md) to start.
 
 ## How it works
 
