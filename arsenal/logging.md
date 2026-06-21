@@ -36,6 +36,12 @@ Rails.application.config.filter_parameters += [
 ## Missing security logging (the blind spot)
 
 - **No audit trail on security-critical events**: login success/failure, password/email change, privilege change, payment, admin actions. If an attacker can act and nothing records it, detection and forensics are impossible. Flag the absence on money/account paths specifically.
+- **Audit trail destroyed with the record it tracks** — an audit/version log wired with `dependent: :destroy` (or an `audited`/`paper_trail`/`phi_access_logs` table cascade-deleted with its parent) vanishes exactly when forensics need it: after the record is gone, including a malicious deletion. Audit logs must outlive what they track (HIPAA mandates 6-year retention; every app needs them after an incident). Keep them out of the destroy cascade; prefer an append-only store.
+
+  ```ruby
+  has_many :access_logs, dependent: :destroy  # Problem — deleting the patient wipes its audit trail
+  has_many :access_logs                        # Fix — logs survive; never cascade-delete an audit trail
+  ```
 - **Failed-authentication attempts not recorded** — no way to see credential stuffing in progress (pairs with the brute-force checks in `arsenal/authentication.md` and rack-attack).
 - **No distinction in logs between a user acting on their own data and on someone else's** — makes IDOR exploitation invisible after the fact.
 
