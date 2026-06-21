@@ -104,7 +104,7 @@ Then the findings, as one list ranked by impact:
 4. **Theoretical security warnings** that survived triage but lack a demonstrated exploit path.
 5. **Remaining quality findings**, worst first.
 
-**Keep each finding tight and scannable.** Lead with a one-line headline: severity, what it is, and where (`file:line`). Then a sentence or two, max, on why it matters here and the concrete fix. Show code only when a few lines make the point faster than words. No multi-paragraph exploit essays: a senior should grasp each finding in seconds and know the next move. Write the way Rails reads — friendly, direct, no ceremony. Don't print scaffolding labels ("Status banner", "Findings"); let the report flow.
+**Keep each finding tight and scannable.** Lead with a one-line headline: severity, what it is, and where (`file:line`). Then a sentence or two, max, on why it matters here and the concrete fix. Show code only when a few lines make the point faster than words. No multi-paragraph exploit essays: a senior should grasp each finding in seconds and know the next move. **Tag each finding with the fix effort** — S (hours) / M (about a day) / L (multi-day) — so the plan can order by *leverage* (impact ÷ effort), not impact alone. When an issue recurs, cite the 2–5 strongest `file:line` locations and note "+ ~N similar", not every instance. Write the way Rails reads — friendly, direct, no ceremony. Don't print scaffolding labels ("Status banner", "Findings"); let the report flow.
 
 **Close with a scoreboard and a plan** so the reader leaves with a number and a next move:
 
@@ -119,8 +119,10 @@ Then the findings, as one list ranked by impact:
 
    Add a line beneath it for dependency risk (reachable CVEs, e.g. "92 advisories / 24 gems") and any end-of-life flag.
 
-2. **Fix now** — the few highest-impact items, each one line with `file:line` and the move. This is the "if you do nothing else" list.
+2. **Fix now** — ranked by **leverage** (impact ÷ effort, discounted by fix-risk), not impact alone: a confirmed critical *and* a low-effort high-impact quick win both belong here; an L-effort, high-risk item drops to *Fix next* even when impactful. Tiebreakers: anything that unblocks other work (a verification baseline, characterization tests) floats up; a high-confidence security finding floats above an equivalent-leverage non-security one; prefer fixes with a clean way to verify them. Each one line with `file:line` and the move — the "if you do nothing else" list.
 3. **Fix next** — the remaining high/medium, grouped tersely.
 4. **Biggest structural multiplier** — one line naming the single refactor that removes the most risk or debt at once.
+
+If something was weighed and isn't worth doing, say so in one line — the reader should know it was considered, not missed.
 
 The whole thing reads like a plan a principal engineer would hand you, not a tool dump.
