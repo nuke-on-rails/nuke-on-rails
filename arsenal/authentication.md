@@ -64,6 +64,7 @@ end
 - **Session fixation**: `reset_session` missing on login and logout (Devise handles this; hand-rolled auth usually forgets).
 - **Cookie flags**: session cookie without `secure`/`httponly`/SameSite in production config.
 - **Sensitive data in the cookie session store** (role flags, feature gates the client can replay).
+- **Open redirect after login**: a post-login redirect built from a user-controlled param — `redirect_to params[:return_to]`, or `after_sign_in_path_for` reading `params`/`session[:return_to]` — without an origin allowlist. An attacker sends a login link that bounces the authenticated user to a look-alike phishing site. Validate against an internal path/host allowlist; never redirect to a raw param. (The OAuth `redirect_uri` variant lives in `arsenal/api.md`.)
 - **Password reset flow** (hand-rolled): token guessable or unexpired, token not invalidated after use, response revealing account existence.
 - **JWTs, if present**: no expiry, `none` algorithm accepted, secret shared with other purposes, tokens irrevocable by design with no denylist, or **sensitive data/secrets in the payload** — a JWT is base64, not encrypted, so anyone holding the token reads every claim (roles, PII, another service's token). Cross-check `arsenal/secrets.md` and `arsenal/logging.md`.
 
