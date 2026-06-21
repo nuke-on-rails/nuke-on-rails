@@ -1,4 +1,4 @@
-# Lens: Background Job Safety
+# Weapon: Background Job Safety
 
 Background jobs are infrastructure with three properties that bite: they **retry by design**, they **persist their arguments**, and they **run later** against data that may have moved. The failures are invisible until a retry double-charges a customer, or a job argument turns out to be a password sitting in the jobs table. No engine models this — Brakeman sees a method call, not a side effect that runs twice.
 

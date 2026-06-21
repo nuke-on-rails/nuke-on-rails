@@ -1,8 +1,8 @@
-# Lens: Authorization & IDOR
+# Weapon: Authorization & IDOR
 
-The territory Brakeman cannot reach: whether the code *checks who is allowed to do what*. Brakeman parses for injection and unsafe APIs; it cannot know that `Order.find(params[:id])` should have been `current_user.orders.find(params[:id])`. That judgment — reading the code with the app's domain in mind — is this lens.
+The territory Brakeman cannot reach: whether the code *checks who is allowed to do what*. Brakeman parses for injection and unsafe APIs; it cannot know that `Order.find(params[:id])` should have been `current_user.orders.find(params[:id])`. That judgment — reading the code with the app's domain in mind — is this weapon.
 
-Apply it to every controller that touches user-owned or money-related data, plus the routes file. This lens *covers* authorization; it does not *guarantee* it — say so in the report.
+Apply it to every controller that touches user-owned or money-related data, plus the routes file. This weapon *covers* authorization; it does not *guarantee* it — say so in the report.
 
 ## Methodology
 
@@ -162,7 +162,7 @@ State the blast radius explicitly in the report: cross-tenant access is "any cus
 
 Confirmed IDOR or missing authorization on money, PII, or account-takeover paths is **the top of the entire report** — above every CVE and every quality finding. For each confirmed finding, state the exploit in one sentence ("any logged-in user can read any other user's invoices by changing the id"). If you cannot demonstrate the unscoped path, it goes to "theoretical", never to "confirmed".
 
-Untested authorization rules are a finding even when the code looks correct — they're one refactor away from silent failure (this overlaps with the quality lens's test-coverage rule; report it on the security side).
+Untested authorization rules are a finding even when the code looks correct — they're one refactor away from silent failure (this overlaps with the quality weapon's test-coverage rule; report it on the security side).
 
 ## Preferred Remedies
 

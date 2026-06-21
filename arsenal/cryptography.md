@@ -1,4 +1,4 @@
-# Lens: Cryptographic Failures
+# Weapon: Cryptographic Failures
 
 OWASP 2025 A04. How the app protects secrets at rest and signs/encrypts what it trusts. Brakeman barely touches this; the failures are in *how* crypto is used, which only reading the code reveals. Look in `lib/`, `app/models/`, and anywhere `OpenSSL`, `Digest`, `encrypt`, `sign`, or a `*_token` appears.
 
@@ -6,7 +6,7 @@ Reference: Rails Security Guide and OWASP A04 — link findings to them.
 
 ## The encryption-oracle pattern (RailsGoat's planted flaw, and it's common)
 
-The highest-value finding in this lens: **one encryption/signing routine reused for both a trust token and user-supplied data.** If the same `encrypt_sensitive_value` that mints the auth/remember-me cookie also encrypts a value the user can submit and read back (a bank account number rendered in a JSON response), the user has an encryption oracle — they feed in any user id, get back a valid auth token, and authenticate as anyone. Trace every use of a crypto helper: if one call signs/encrypts an authorization value and another encrypts attacker-controllable data with the same key, that is a confirmed-critical finding.
+The highest-value finding in this weapon: **one encryption/signing routine reused for both a trust token and user-supplied data.** If the same `encrypt_sensitive_value` that mints the auth/remember-me cookie also encrypts a value the user can submit and read back (a bank account number rendered in a JSON response), the user has an encryption oracle — they feed in any user id, get back a valid auth token, and authenticate as anyone. Trace every use of a crypto helper: if one call signs/encrypts an authorization value and another encrypts attacker-controllable data with the same key, that is a confirmed-critical finding.
 
 ```ruby
 # Problem — one helper encrypts both the auth token and user-readable data with one static key.

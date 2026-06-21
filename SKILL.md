@@ -82,11 +82,11 @@ They cover what Brakeman can't reach. The arsenal *covers* those areas; it does 
 
 Apply `arsenal/code-quality.md` — the thermo-nuclear standards, translated to the Rails idiom — to the hotspot files from Step 2. That check is the default quality bar for this skill: ambitious structural findings, not cosmetic nits.
 
-Then apply `arsenal/migrations.md` to the recent migrations in `db/migrate/` (read against `db/schema.rb` for table sizes) — the availability lens no engine owns. A migration that locks or rewrites a large, traffic-heavy table, or drops/renames a column ahead of the code that uses it, is a scheduled outage, not a code smell: rank it accordingly.
+Then apply `arsenal/migrations.md` to the recent migrations in `db/migrate/` (read against `db/schema.rb` for table sizes) — the availability weapon no engine owns. A migration that locks or rewrites a large, traffic-heavy table, or drops/renames a column ahead of the code that uses it, is a scheduled outage, not a code smell: rank it accordingly.
 
 Also apply `arsenal/architecture.md` to the `app/` layer folders and the hotspots — dependency *direction* and cycles, which rubycritic's per-file scores miss: a model reaching up into the web layer, two namespaces that reference each other, or Zeitwerk name/path drift.
 
-And apply `arsenal/activerecord.md` to `app/models/` and the query-heavy hotspots — the correctness/integrity of the ActiveRecord calls themselves (a side effect in `after_save` racing the transaction, `where(...).first` with no order, `has_many` without `dependent:`), which the structural lenses don't judge.
+And apply `arsenal/activerecord.md` to `app/models/` and the query-heavy hotspots — the correctness/integrity of the ActiveRecord calls themselves (a side effect in `after_save` racing the transaction, `where(...).first` with no order, `has_many` without `dependent:`), which the structural weapons don't judge.
 
 And apply `arsenal/jobs.md` to `app/jobs/` and the enqueue sites — background-job safety the engines can't model: a non-idempotent job that repeats its side effect on retry (double-charge), secrets/PII in job arguments (persisted in the queue store and shown on the dashboard), and records passed instead of ids.
 
@@ -94,7 +94,7 @@ And apply `arsenal/jobs.md` to `app/jobs/` and the enqueue sites — background-
 
 This section is the single source of truth for how the report reads: language, tone, structure, and the closing summary. Write the whole report in the user's language (see the top of this file).
 
-**Open with a short status banner** — just write it, don't print a "Status banner" label. A few lines of orientation: project type and Rails/Ruby versions (note any substitution, e.g. running under a different Ruby), whether git history made the churn quadrant reliable, the engines that ran with headline counts, and one honest line on coverage (lenses cover, they don't guarantee). Give it a dry, deadpan wit — it's a tool named *Nuke on Rails* (English example, for tone only: "The good news: the app isn't on fire. The bad news: I found the matches."). **Write the joke natively in the user's language** so it actually lands; never translate the example literally. Humor lives in the framing only; every finding stays sober and precise.
+**Open with a short status banner** — just write it, don't print a "Status banner" label. A few lines of orientation: project type and Rails/Ruby versions (note any substitution, e.g. running under a different Ruby), whether git history made the churn quadrant reliable, the engines that ran with headline counts, and one honest line on coverage (weapons cover, they don't guarantee). Give it a dry, deadpan wit — it's a tool named *Nuke on Rails* (English example, for tone only: "The good news: the app isn't on fire. The bad news: I found the matches."). **Write the joke natively in the user's language** so it actually lands; never translate the example literally. Humor lives in the framing only; every finding stays sober and precise.
 
 Then the findings, as one list ranked by impact:
 

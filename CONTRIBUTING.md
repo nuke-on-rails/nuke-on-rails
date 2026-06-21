@@ -12,14 +12,14 @@ The model is RuboCop/cops: **the maintainer owns the engine (`SKILL.md`, the pip
 
 ## What a weapon is
 
-One file in `arsenal/` is one weapon (`arsenal/authorization.md`, `arsenal/jobs.md`, …). Each reads as a **lens** a principal engineer applies: a short framing of the territory the scanners miss, then the concrete findings, then how to rank them. Copy `arsenal/_TEMPLATE.md` to start — it encodes the house structure.
+One file in `arsenal/` is one weapon (`arsenal/authorization.md`, `arsenal/jobs.md`, …). Each is a **weapon** a principal engineer brings to the audit: a short framing of the territory the scanners miss, then the concrete findings, then how to rank them. Copy `arsenal/_TEMPLATE.md` to start — it encodes the house structure.
 
 ### Non-negotiables for any check
 
 - **Every bullet that names a concrete, code-level problem carries a tight `# Problem` / `# Fix` example** — a fenced block right under the bullet, usually two lines. The example is the point; it turns a description into something recognizable on sight. Keep it minimal so the file still scans. (Methodology/severity/pure-principle bullets are exempt.)
 - **It catches what the engines don't.** If Brakeman or rubycritic already flags it deterministically, don't re-document it — add the *semantic* layer they miss, or skip it.
 - **Hold an opinion.** State the finding and the fix directly; acknowledge a counter-position in a clause, not an "it depends" essay. The voice is the Rails guides crossed with a code review: friendly, direct, no ceremony.
-- **"Covers, not guarantees."** A lens *covers* an area; it doesn't *prove* the absence of a bug. Say so where it matters.
+- **"Covers, not guarantees."** A weapon *covers* an area; it doesn't *prove* the absence of a bug. Say so where it matters.
 
 ### Security findings are held to a higher bar
 

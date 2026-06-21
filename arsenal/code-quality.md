@@ -1,6 +1,6 @@
-# Lens: Code Quality (Thermo-Nuclear)
+# Weapon: Code Quality (Thermo-Nuclear)
 
-The quality engine of Nuke on Rails — absorbed from the Thermo-Nuclear Code Quality Review and translated to the Rails idiom. Apply this lens to the hotspot files selected by the churn × complexity quadrant, never to the whole codebase uniformly.
+The quality engine of Nuke on Rails — absorbed from the Thermo-Nuclear Code Quality Review and translated to the Rails idiom. Apply this weapon to the hotspot files selected by the churn × complexity quadrant, never to the whole codebase uniformly.
 
 Above all, be **ambitious** about code structure. Do not merely identify local cleanup opportunities. Actively search for "code judo" moves: restructurings that preserve behavior while making the implementation dramatically simpler, smaller, more direct, and more elegant.
 
@@ -63,7 +63,7 @@ Start from this baseline:
 
 ## Rails Translation
 
-The classic smells of this lens, in their Rails form:
+The classic smells of this weapon, in their Rails form:
 
 - **Fat models**: god objects (usually `User`) accumulating every concern in the app. The fix is extraction into POROs, service objects, or domain modules — not a `concerns/` folder that hides the same mess.
 - **Rug concerns**: `app/models/concerns/` used as a rug to sweep code under. A concern that is only included in one model is a file split pretending to be an abstraction.

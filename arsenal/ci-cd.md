@@ -1,8 +1,8 @@
-# Lens: CI/CD Workflow Security
+# Weapon: CI/CD Workflow Security
 
 The pipeline config lives in the repo (`.github/workflows/*.yml`, `.gitlab-ci.yml`, `Jenkinsfile`) and runs with credentials that can read every secret and deploy production. No Rails engine looks at it, yet one misconfigured workflow is repo-wide remote code execution or a secret exfiltrated from a fork's pull request. Read the workflow files.
 
-This lens covers the repo's CI pipeline — a distinct layer from the Rails app code. Specialist tools exist (`zizmor`, `actionlint`, `octoscan`); this is the high-impact set an audit shouldn't miss. Skip if the repo has no CI config. Most findings here are OWASP 2025 A08 (software & data integrity).
+This weapon covers the repo's CI pipeline — a distinct layer from the Rails app code. Specialist tools exist (`zizmor`, `actionlint`, `octoscan`); this is the high-impact set an audit shouldn't miss. Skip if the repo has no CI config. Most findings here are OWASP 2025 A08 (software & data integrity).
 
 ## `pull_request_target` running untrusted code
 

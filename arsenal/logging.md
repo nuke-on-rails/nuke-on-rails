@@ -1,6 +1,6 @@
-# Lens: Logging & Monitoring Failures
+# Weapon: Logging & Monitoring Failures
 
-OWASP 2025 A09 — the one Top 10 category no engine and no other lens covers, and the one RailsGoat itself barely plants because it's a failure of *absence*. Two opposite failure modes: too little logging (you can't tell you were breached) and too much (the logs themselves become the leak). Read `config/environments/production.rb`, `config/initializers/filter_parameter_logging.rb`, the auth and payment controllers, and the Gemfile (for an audit-trail gem).
+OWASP 2025 A09 — the one Top 10 category no engine and no other weapon covers, and the one RailsGoat itself barely plants because it's a failure of *absence*. Two opposite failure modes: too little logging (you can't tell you were breached) and too much (the logs themselves become the leak). Read `config/environments/production.rb`, `config/initializers/filter_parameter_logging.rb`, the auth and payment controllers, and the Gemfile (for an audit-trail gem).
 
 Reference: Rails Security Guide §Logging and OWASP A09.
 

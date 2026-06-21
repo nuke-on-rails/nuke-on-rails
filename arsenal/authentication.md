@@ -1,4 +1,4 @@
-# Lens: Authentication
+# Weapon: Authentication
 
 How the app knows who you are — and how much that mechanism can be trusted. Brakeman checks a few auth-adjacent patterns; the configuration choices, custom strategies, and token flows below are semantic territory only code-reading covers.
 

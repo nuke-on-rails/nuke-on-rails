@@ -1,10 +1,10 @@
-# Lens: API Surface
+# Weapon: API Surface
 
-For JSON endpoints — API-mode apps, `/api` namespaces, or any controller that does `render json:`. The findings unique to this lens are *data-shape* problems: Brakeman parses code, not payloads, and will never tell you a serializer ships a column it shouldn't.
+For JSON endpoints — API-mode apps, `/api` namespaces, or any controller that does `render json:`. The findings unique to this weapon are *data-shape* problems: Brakeman parses code, not payloads, and will never tell you a serializer ships a column it shouldn't.
 
 ## Over-exposure — the API-side IDOR
 
-- **`render json: @user` (or `.to_json` without `only:`/serializer)** ships every column: token digests, role flags, internal ids, PII. Read the model's schema next to the render call and name the columns that leak. This is the single highest-yield check in this lens.
+- **`render json: @user` (or `.to_json` without `only:`/serializer)** ships every column: token digests, role flags, internal ids, PII. Read the model's schema next to the render call and name the columns that leak. This is the single highest-yield check in this weapon.
 - Serializers/jbuilder views with one shape for every consumer — admin-only fields delivered to regular users (pairs with `arsenal/authorization.md`).
 - Associations included wholesale (`include:`, nested serializers) — the leak hides one level deep.
 - Index endpoints with **no pagination**: `Model.all.to_json` is a table dump — data exposure and a self-DoS in one line.
@@ -82,7 +82,7 @@ A GraphQL endpoint is one URL with a different threat model — none of the REST
 - **Introspection enabled in production** — the schema is a map of the whole attack surface; disable it outside development.
 - **No query depth/complexity limit** — a deeply nested or expensive query is a one-request DoS. Look for `max_depth`/`max_complexity` on the schema; their absence is the finding.
 - **No persisted-query allowlist** on a public-facing API where the client set is known.
-- Authorization checked at the controller but not per-field/resolver — GraphQL bypasses controller-level guards; the IDOR/authorization lens applies at the resolver level.
+- Authorization checked at the controller but not per-field/resolver — GraphQL bypasses controller-level guards; the IDOR/authorization weapon applies at the resolver level.
 
 ```ruby
 # Problem — introspection on in production maps the whole attack surface; no depth limit = one-request DoS

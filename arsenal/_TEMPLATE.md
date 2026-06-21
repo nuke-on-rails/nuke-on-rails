@@ -1,4 +1,4 @@
-# Lens: <Weapon Name>
+# Weapon: <Weapon Name>
 
 <One or two sentences framing the territory the scanners miss. What does rubycritic/Brakeman/bundler-audit NOT see here, and why does reading the code with the app's domain in mind catch it? Name the files to read (`app/...`, `config/...`).>
 
@@ -22,7 +22,7 @@ bad_thing   # Problem — ...
 good_thing  # Fix — ...
 ```
 
-<Repeat for each distinct finding. Hold an opinion; acknowledge a counter-position in a clause, not an essay. Say "this lens covers X; it does not guarantee it" where that honesty matters. Cross-reference sibling weapons with `arsenal/<other>.md` instead of duplicating.>
+<Repeat for each distinct finding. Hold an opinion; acknowledge a counter-position in a clause, not an essay. Say "this weapon covers X; it does not guarantee it" where that honesty matters. Cross-reference sibling weapons with `arsenal/<other>.md` instead of duplicating.>
 
 ## Severity and remedies
 

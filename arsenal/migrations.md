@@ -1,6 +1,6 @@
-# Lens: Migration Safety (zero-downtime)
+# Weapon: Migration Safety (zero-downtime)
 
-The availability lens no engine owns. rubycritic scores `app/`, Brakeman hunts exploits — neither reads `db/migrate/`, yet a single careless migration is a production outage: a statement that takes an `ACCESS EXCLUSIVE` lock on a large table, or a schema change deployed ahead of the code that depends on it, takes the app down during the deploy that was supposed to be routine. This finding is about *downtime*, not a code smell.
+The availability weapon no engine owns. rubycritic scores `app/`, Brakeman hunts exploits — neither reads `db/migrate/`, yet a single careless migration is a production outage: a statement that takes an `ACCESS EXCLUSIVE` lock on a large table, or a schema change deployed ahead of the code that depends on it, takes the app down during the deploy that was supposed to be routine. This finding is about *downtime*, not a code smell.
 
 Apply it to recent migrations (the ones about to ship) in `db/migrate/`, read against `db/schema.rb` for which tables are large. Whether a lock actually hurts depends on row count and traffic, which static analysis can't see — so flag conditionally: "this locks `orders` for the duration of the rewrite; on a large, write-hot table that's an outage." The de-facto structural guarantee is the **strong_migrations** gem (the RuboCop of migrations); its absence on a team shipping migrations is itself worth a line.
 
