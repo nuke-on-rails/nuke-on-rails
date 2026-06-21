@@ -8,9 +8,19 @@ disable-model-invocation: true
 
 A full project health audit for Rails apps: *what to refactor, what's vulnerable, and in what order to attack it*. Three deterministic engines do the scanning; you are the judge. The output is **one single list, prioritized by impact**, never tool sections stapled together.
 
-**Respond in the user's language.** Write the step announcements and the final report in whatever language the user writes in. (These instructions and the arsenal are authored in English, but the audit you produce should speak to whoever ran it.)
+**Respond in the user's language.** Write the step announcements and the *entire* final report in whatever language the user writes in — and that means **every label too**: severity words (`Critical`/`High`/`Medium`/`Low`), section titles (`SCOREBOARD`, `FIX NOW`, `FIX NEXT`, `BIGGEST STRUCTURAL MULTIPLIER`, `RULED OUT`, `NOTES`), and finding fields (`Problem`/`Solution`/`Files`/`Technical details`). The English in these instructions and in `templates/_OUTPUT.md` is the authoring language only — **never emit an English label into a non-English report.** Only fixed tokens stay as-is: the brand `NUKE ON RAILS`, emoji, file paths, code identifiers, CVE ids.
 
-This audit takes minutes, so announce each step as you begin it and the user sees progress. The examples below show the format in English; translate them to the user's language: `🔭 Step 1/5 — installing & running engines…`, `🎯 Step 2 — picking hotspots (churn × complexity)…`, `⚖️ Step 3 — triaging N findings & bringing the arsenal…`, `📋 Step 5 — building the impact-ranked report…`. One short line per step; the visible tool calls fill in the rest.
+This audit is a recon sweep — and it takes minutes, so announce each step as a dry field-radio line and the user watches the campaign advance. The conceit: you are the recon team scouting the codebase's *own* walls for the breaches a real attacker would use; the enemy is the debt and the holes, never the user. The lines below are authored in English — translate them to the user's language, one short line per step:
+
+- `☢️ NUKE ON RAILS — operation underway`
+- `🔭 Recon — scouting the terrain (Rails? Ruby? git history?)…`
+- `🎖️ Mobilizing — arming & firing the engines…`
+- `🎯 Targets — marking where to concentrate fire (churn × complexity)…`
+- `⚔️ Probing the defenses — triaging N alerts, bringing the arsenal…`
+- `🧱 Inspecting the walls — reviewing the most battered files…`
+- `📋 Briefing the command — consolidating the field report…`
+
+The visible tool calls fill in the rest. The campaign voice lives in these announcements (and the TL;DR framing) **only** — it must never bleed into the findings, which stay sober and literal.
 
 ## Step 0 — Detect the project
 
@@ -94,7 +104,7 @@ And apply `arsenal/jobs.md` to `app/jobs/` and the enqueue sites — background-
 
 This section governs *what goes in* the report and *how it's judged* — language, tone, ranking, and the closing summary. **The visual structure it's rendered in — terminal-native plaintext, no markdown — lives in `templates/_OUTPUT.md`; the report must match that skeleton.** Write the whole report in the user's language (see the top of this file).
 
-**Open with a short status banner** — just write it, don't print a "Status banner" label. A few lines of orientation: project type and Rails/Ruby versions (note any substitution, e.g. running under a different Ruby), whether git history made the churn quadrant reliable, the engines that ran with headline counts, and one honest line on coverage (weapons cover, they don't guarantee). Give it a dry, deadpan wit — it's a tool named *Nuke on Rails* (English example, for tone only: "The good news: the app isn't on fire. The bad news: I found the matches."). **Write the joke natively in the user's language** so it actually lands; never translate the example literally. Humor lives in the framing only; every finding stays sober and precise.
+**Open with a short status banner** — just write it, don't print a "Status banner" label. A few lines of orientation: project type and Rails/Ruby versions (note any substitution, e.g. running under a different Ruby), whether git history made the churn quadrant reliable, the engines that ran with headline counts, and one honest line on coverage (weapons cover, they don't guarantee). Open the TL;DR as a dry field report to the command, in keeping with the recon-campaign voice of the step announcements (English example, for tone only: "Field report: the position isn't on fire — but the back gate is unlocked, and that's where they get in."). **Write it natively in the user's language** so it actually lands; never translate the example literally. The campaign voice lives in the banner/TL;DR framing only; every finding stays sober and precise.
 
 Right after the banner, open the body with the **severity scoreboard** — the triaged counts on one inline line, count before the label (never a markdown table; see `templates/_OUTPUT.md`):
 
