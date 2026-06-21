@@ -56,6 +56,12 @@ NotifyJob.perform_later(order.id)
 def perform(order_id) = Order.find(order_id).notify
 ```
 
+Exception: a job enqueued from `after_destroy_commit` **can't** reload the record — it's already gone, so `Order.find(id)` raises `RecordNotFound`. Pass the data the job needs as plain arguments, captured before the destroy.
+
+```ruby
+after_destroy_commit { CleanupJob.perform_later(id, owner_email) }  # Fix — snapshot what the job needs
+```
+
 ## Severity and remedies
 
 Rank by what the misuse costs:
