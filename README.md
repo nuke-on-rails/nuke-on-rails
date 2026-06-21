@@ -20,9 +20,9 @@
 
 <p align="center">
   <a href="#what-it-is">What It Is</a> &nbsp;&bull;&nbsp;
+  <a href="#quick-start">Quick Start</a> &nbsp;&bull;&nbsp;
   <a href="#what-it-catches">What It Catches</a> &nbsp;&bull;&nbsp;
-  <a href="#how-it-works">How It Works</a> &nbsp;&bull;&nbsp;
-  <a href="#quick-start">Quick Start</a>
+  <a href="#how-it-works">How It Works</a>
 </p>
 
 ---
@@ -98,43 +98,23 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 </details>
 
 <details>
-<summary><strong><a href="arsenal/authentication.md">Authentication & sessions</a></strong></summary>
+<summary><strong><a href="arsenal/activerecord.md">ActiveRecord correctness</a></strong></summary>
 
-* Devise misconfig: user enumeration, no lockout, sessions that never expire, weak password policy
-* Session fixation and missing cookie flags (`secure` / `httponly` / `SameSite`)
-* Timing attacks and type-juggling on token and credential lookups
-* Tokens stored in plaintext or without expiry; rate-limit / throttle bypass
-* Custom Warden strategy bugs, scope confusion, impersonation gaps; JWT pitfalls (`none` alg, no expiry)
-
-</details>
-
-<details>
-<summary><strong><a href="arsenal/secrets.md">Secrets</a></strong></summary>
-
-* `master.key`, credentials keys, or `.env` committed to git (including in history)
-* Hardcoded API keys (Stripe, AWS, Twilio…) in code and initializers
-* Secrets in seeds, fixtures, or `database.yml`; secret-as-ENV-fallback
+* Side effects in `after_save` that race the transaction (belongs in `after_commit`)
+* `where(...).first` with no order (non-deterministic results)
+* `has_many` without `dependent:`, and polymorphic associations with no FK integrity
+* `count > 0` / `present?` for boolean checks; `all.each` over large tables
 
 </details>
 
 <details>
-<summary><strong><a href="arsenal/cryptography.md">Cryptography</a></strong></summary>
+<summary><strong><a href="arsenal/ai.md">AI / LLM integration</a></strong></summary>
 
-* Encryption oracles (one crypto routine reused for trust tokens and user data)
-* Hand-rolled crypto instead of Rails primitives; static IVs; unauthenticated cipher modes
-* Weak password hashing (MD5/SHA); sensitive columns (CPF, SSN, bank, health) stored in plaintext
-
-</details>
-
-<details>
-<summary><strong><a href="arsenal/hardening.md">Configuration & hardening</a></strong></summary>
-
-* `force_ssl` / HSTS off; backing-service traffic (Postgres, Redis) in cleartext
-* CSP missing or disabled; CSRF skipped on cookie-authenticated actions; host-header injection
-* Unauthenticated mounted dashboards (Sidekiq, PgHero, Flipper)
-* Debug / console gems shipped to production (a remote-code-execution surface)
-* Stack traces to users, unsafe uploads, stored XSS via markdown rendering
-* SSRF: a user-supplied URL fetched server-side (cloud metadata, internal services)
+* Prompt injection: user input or retrieved (RAG) content fed to the model as if it were instructions
+* LLM output rendered with `raw` / `html_safe` (stored XSS the scanners can't see), or piped into `eval` / SQL / `system`
+* PII and secrets sent into prompts to third-party model APIs without redaction
+* Over-powered tool/function-calling: SSRF, DB, or shell reach with no allowlist or human-in-the-loop
+* No rate or cost ceiling on LLM-backed endpoints (DoS and wallet-drain)
 
 </details>
 
@@ -151,22 +131,32 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 </details>
 
 <details>
-<summary><strong><a href="arsenal/logging.md">Logging & monitoring</a></strong></summary>
+<summary><strong><a href="arsenal/architecture.md">Architectural boundaries</a></strong></summary>
 
-* Sensitive data in logs (filter gaps, `puts` / logger dumps, unscrubbed error-tracker breadcrumbs)
-* PII sent to third-party and LLM calls
-* No audit trail on login, payment, privilege, and admin actions
+* Dependency direction: a model or service reaching up into the web layer (`params`, `render`, `*Controller`)
+* Dependency cycles: two namespaces that reference each other and became one unit
+* One-shot object ceremony (`Foo.new(x).call`) and inconsistent component entry points
+* Zeitwerk name/path drift (`billing/charge.rb` not defining `Billing::Charge`)
 
 </details>
 
 <details>
-<summary><strong><a href="arsenal/ai.md">AI / LLM integration</a></strong></summary>
+<summary><strong><a href="arsenal/authentication.md">Authentication & sessions</a></strong></summary>
 
-* Prompt injection: user input or retrieved (RAG) content fed to the model as if it were instructions
-* LLM output rendered with `raw` / `html_safe` (stored XSS the scanners can't see), or piped into `eval` / SQL / `system`
-* PII and secrets sent into prompts to third-party model APIs without redaction
-* Over-powered tool/function-calling: SSRF, DB, or shell reach with no allowlist or human-in-the-loop
-* No rate or cost ceiling on LLM-backed endpoints (DoS and wallet-drain)
+* Devise misconfig: user enumeration, no lockout, sessions that never expire, weak password policy
+* Session fixation and missing cookie flags (`secure` / `httponly` / `SameSite`)
+* Timing attacks and type-juggling on token and credential lookups
+* Tokens stored in plaintext or without expiry; rate-limit / throttle bypass
+* Custom Warden strategy bugs, scope confusion, impersonation gaps; JWT pitfalls (`none` alg, no expiry)
+
+</details>
+
+<details>
+<summary><strong><a href="arsenal/jobs.md">Background jobs</a></strong></summary>
+
+* Non-idempotent jobs that repeat the side effect on retry (double-charge)
+* Secrets / PII in job arguments (persisted in the queue store, shown on the dashboard)
+* Records passed instead of ids (stale data, deserialization failures)
 
 </details>
 
@@ -177,16 +167,6 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 * Untrusted `${{ }}` (PR title, branch) interpolated into a `run:` shell (script injection)
 * Third-party actions pinned to a moving tag instead of a SHA (supply chain)
 * Long-lived cloud keys as CI secrets instead of OIDC; over-broad `GITHUB_TOKEN` permissions
-
-</details>
-
-<details>
-<summary><strong><a href="arsenal/cve.md">Dependencies & versions</a></strong></summary>
-
-* Known CVEs in your gems and in the Ruby version itself
-* JavaScript dependency advisories
-* Insecure or unpinned gem sources
-* End-of-life Ruby or Rails (a critical compliance finding even with zero open CVEs)
 
 </details>
 
@@ -203,31 +183,42 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 </details>
 
 <details>
-<summary><strong><a href="arsenal/jobs.md">Background jobs</a></strong></summary>
+<summary><strong><a href="arsenal/hardening.md">Configuration & hardening</a></strong></summary>
 
-* Non-idempotent jobs that repeat the side effect on retry (double-charge)
-* Secrets / PII in job arguments (persisted in the queue store, shown on the dashboard)
-* Records passed instead of ids (stale data, deserialization failures)
-
-</details>
-
-<details>
-<summary><strong><a href="arsenal/activerecord.md">ActiveRecord correctness</a></strong></summary>
-
-* Side effects in `after_save` that race the transaction (belongs in `after_commit`)
-* `where(...).first` with no order (non-deterministic results)
-* `has_many` without `dependent:`, and polymorphic associations with no FK integrity
-* `count > 0` / `present?` for boolean checks; `all.each` over large tables
+* `force_ssl` / HSTS off; backing-service traffic (Postgres, Redis) in cleartext
+* CSP missing or disabled; CSRF skipped on cookie-authenticated actions; host-header injection
+* Unauthenticated mounted dashboards (Sidekiq, PgHero, Flipper)
+* Debug / console gems shipped to production (a remote-code-execution surface)
+* Stack traces to users, unsafe uploads, stored XSS via markdown rendering
+* SSRF: a user-supplied URL fetched server-side (cloud metadata, internal services)
 
 </details>
 
 <details>
-<summary><strong><a href="arsenal/architecture.md">Architectural boundaries</a></strong></summary>
+<summary><strong><a href="arsenal/cryptography.md">Cryptography</a></strong></summary>
 
-* Dependency direction: a model or service reaching up into the web layer (`params`, `render`, `*Controller`)
-* Dependency cycles: two namespaces that reference each other and became one unit
-* One-shot object ceremony (`Foo.new(x).call`) and inconsistent component entry points
-* Zeitwerk name/path drift (`billing/charge.rb` not defining `Billing::Charge`)
+* Encryption oracles (one crypto routine reused for trust tokens and user data)
+* Hand-rolled crypto instead of Rails primitives; static IVs; unauthenticated cipher modes
+* Weak password hashing (MD5/SHA); sensitive columns (CPF, SSN, bank, health) stored in plaintext
+
+</details>
+
+<details>
+<summary><strong><a href="arsenal/cve.md">Dependencies & versions</a></strong></summary>
+
+* Known CVEs in your gems and in the Ruby version itself
+* JavaScript dependency advisories
+* Insecure or unpinned gem sources
+* End-of-life Ruby or Rails (a critical compliance finding even with zero open CVEs)
+
+</details>
+
+<details>
+<summary><strong><a href="arsenal/logging.md">Logging & monitoring</a></strong></summary>
+
+* Sensitive data in logs (filter gaps, `puts` / logger dumps, unscrubbed error-tracker breadcrumbs)
+* PII sent to third-party and LLM calls
+* No audit trail on login, payment, privilege, and admin actions
 
 </details>
 
@@ -238,6 +229,15 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 * Data backfills inside DDL migrations
 * Deploy-ordering hazards: columns dropped or renamed ahead of the code that uses them (expand/contract)
 * Irreversible, non-rollback-safe migrations; missing indexes on foreign keys
+
+</details>
+
+<details>
+<summary><strong><a href="arsenal/secrets.md">Secrets</a></strong></summary>
+
+* `master.key`, credentials keys, or `.env` committed to git (including in history)
+* Hardcoded API keys (Stripe, AWS, Twilio…) in code and initializers
+* Secrets in seeds, fixtures, or `database.yml`; secret-as-ENV-fallback
 
 </details>
 The community grows the catalog: a new check is a markdown PR, no code required — see [CONTRIBUTING.md](CONTRIBUTING.md) and copy [`arsenal/_TEMPLATE.md`](arsenal/_TEMPLATE.md) to start.
