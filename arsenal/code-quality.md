@@ -127,6 +127,17 @@ The classic smells of this lens, in their Rails form:
     raise
   end
   ```
+- **Request state in class/global variables (thread-unsafe)**: Rails serves requests on multiple threads (Puma) and runs jobs threaded, so a class variable (`@@current_user`), a class-level `attr_accessor`, a mutated constant, or memoization on the class that holds request-scoped data is shared across threads — one request's data leaks into another's (a cross-user leak, like the cache and broadcast leaks in `arsenal/authorization.md`) or races. Keep per-request state on `ActiveSupport::CurrentAttributes` or controller instance variables, never on the class.
+
+  ```ruby
+  class Tenant
+    @@current = nil                # Problem — shared across threads; one request's tenant leaks to another
+    def self.current=(t) = @@current = t
+  end
+  class Current < ActiveSupport::CurrentAttributes  # Fix — per-request, thread-isolated, reset each request
+    attribute :tenant
+  end
+  ```
 
 ## Primary Review Questions
 
