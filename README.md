@@ -192,6 +192,16 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 </details>
 
 <details>
+<summary><strong><a href="arsenal/activerecord.md">ActiveRecord correctness</a></strong></summary>
+
+* Side effects in `after_save` that race the transaction (belongs in `after_commit`)
+* `where(...).first` with no order (non-deterministic results)
+* `has_many` without `dependent:`, and polymorphic associations with no FK integrity
+* `count > 0` / `present?` for boolean checks; `all.each` over large tables
+
+</details>
+
+<details>
 <summary><strong><a href="arsenal/architecture.md">Architectural boundaries</a></strong></summary>
 
 * Dependency direction: a model or service reaching up into the web layer (`params`, `render`, `*Controller`)
