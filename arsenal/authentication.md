@@ -65,7 +65,7 @@ end
 - **Cookie flags**: session cookie without `secure`/`httponly`/SameSite in production config.
 - **Sensitive data in the cookie session store** (role flags, feature gates the client can replay).
 - **Password reset flow** (hand-rolled): token guessable or unexpired, token not invalidated after use, response revealing account existence.
-- **JWTs, if present**: no expiry, `none` algorithm accepted, secret shared with other purposes, tokens irrevocable by design with no denylist.
+- **JWTs, if present**: no expiry, `none` algorithm accepted, secret shared with other purposes, tokens irrevocable by design with no denylist, or **sensitive data/secrets in the payload** — a JWT is base64, not encrypted, so anyone holding the token reads every claim (roles, PII, another service's token). Cross-check `arsenal/secrets.md` and `arsenal/logging.md`.
 
 ```ruby
 # Problem — hand-rolled login never rotates the session id → session fixation
