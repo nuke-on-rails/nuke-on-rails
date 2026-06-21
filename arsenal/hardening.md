@@ -81,6 +81,7 @@ Sensitive pages (account, payment, anything behind login) cached client-side or 
 - Token-bearing URLs (password reset, email confirmation, magic links) without `<meta name="robots" content="noindex, nofollow">` — they get indexed and land in search results / referrer logs.
 - `autocomplete="off"` missing on sensitive form fields (payment, SSN) where browser storage is a real exposure.
 - `config.action_controller.default_url_options` host unset (host-header injection in generated links) and `asset_host` unset (cache-poisoning surface).
+- **A page that renders a form, HTTP-cached** (`fresh_when`/`stale?`/`etag` on an action whose view has a `form_with`) — a returning visitor gets the cached page with a stale `authenticity_token`, and the next submit fails with `InvalidAuthenticityToken` (422). Don't HTTP-cache pages that carry a form.
 
 ```ruby
 # Problem — an authenticated page is cacheable: it lingers in the browser/proxy after logout
@@ -92,6 +93,18 @@ end
 def show
   @statement = current_user.statements.find(params[:id])
   response.headers["Cache-Control"] = "no-store, private"
+end
+```
+
+```ruby
+# Problem — a form page is HTTP-cached: a returning visitor's stale CSRF token 422s on submit
+def edit
+  @post = current_user.posts.find(params[:id])
+  fresh_when @post
+end
+# Fix — don't HTTP-cache a page that renders a form
+def edit
+  @post = current_user.posts.find(params[:id])
 end
 ```
 
