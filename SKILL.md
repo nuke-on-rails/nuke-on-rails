@@ -85,6 +85,8 @@ Then apply `arsenal/migrations.md` to the recent migrations in `db/migrate/` (re
 
 Also apply `arsenal/architecture.md` to the `app/` layer folders and the hotspots — dependency *direction* and cycles, which rubycritic's per-file scores miss: a model reaching up into the web layer, two namespaces that reference each other, or Zeitwerk name/path drift.
 
+And apply `arsenal/activerecord.md` to `app/models/` and the query-heavy hotspots — the correctness/integrity of the ActiveRecord calls themselves (a side effect in `after_save` racing the transaction, `where(...).first` with no order, `has_many` without `dependent:`), which the structural lenses don't judge.
+
 ## Step 5 — The report (output)
 
 This section is the single source of truth for how the report reads: language, tone, structure, and the closing summary. Write the whole report in the user's language (see the top of this file).
