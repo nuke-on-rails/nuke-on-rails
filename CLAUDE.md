@@ -11,8 +11,8 @@ Nuke on Rails is an open source skill (Claude Code and cross-agent) that audits 
 ## Read these first, in order
 
 1. **This file** — principles, hard rules, architecture, and the OWASP coverage map.
-2. **`SKILL.md`** — the engine: the five-step audit pipeline the agent runs.
-3. **`arsenal/`** — the weapons applied on top of the engines; **`arsenal/_TEMPLATE.md`** is the house structure for a weapon.
+2. **`SKILL.md`** — the engine: the five-step audit pipeline the agent runs; **`templates/_OUTPUT.md`** is the house structure for the report it produces.
+3. **`arsenal/`** — the weapons applied on top of the engines; **`templates/_WEAPON.md`** is the house structure for a weapon.
 4. **`CONTRIBUTING.md`** — how to add or deepen a weapon, and the acceptance bar.
 5. **`EVALS.md`** — the RailsGoat must-catch regression checklist.
 
