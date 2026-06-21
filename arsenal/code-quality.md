@@ -67,6 +67,19 @@ The classic smells of this lens, in their Rails form:
 
 - **Fat models**: god objects (usually `User`) accumulating every concern in the app. The fix is extraction into POROs, service objects, or domain modules — not a `concerns/` folder that hides the same mess.
 - **Rug concerns**: `app/models/concerns/` used as a rug to sweep code under. A concern that is only included in one model is a file split pretending to be an abstraction.
+- **Service-layer ceremony**: the over-extraction smell — a `*Service` whose `call` just wraps one model method, adding indirection with zero capability — and its opposite, the god service (`OrderService`/`*Manager`/`*Handler` accumulating a dozen unrelated verbs: a fat model that escaped to `app/services/`). Logic *earns* a service only when it orchestrates 3+ models in one transaction, calls an external API, has multiple outcomes a caller must branch on, or has no model home — not by default.
+
+  ```ruby
+  # Problem — a service that wraps a single model method: a class, a file, and zero capability
+  class DeletePostService
+    def initialize(post) = @post = post
+    def call = @post.destroy!
+  end
+  DeletePostService.new(post).call
+
+  # Fix — it's a model method
+  post.destroy!
+  ```
 - **Callback-driven business logic**: chains of `before_save`/`after_commit` that implement workflows invisibly. Side effects belong in an explicit object the caller invokes, not in hooks that fire by surprise.
 
   ```ruby
