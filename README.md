@@ -190,6 +190,16 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 * The churn × complexity hotspots
 
 </details>
+
+<details>
+<summary><strong><a href="arsenal/migrations.md">Migration safety</a></strong></summary>
+
+* Schema changes that lock or rewrite large tables (`null: false` without default, non-concurrent indexes, type changes, foreign keys validated in one shot)
+* Data backfills inside DDL migrations
+* Deploy-ordering hazards: columns dropped or renamed ahead of the code that uses them (expand/contract)
+* Irreversible, non-rollback-safe migrations; missing indexes on foreign keys
+
+</details>
 The community grows the catalog: a new check is a markdown PR, no code required.
 
 ## How it works
