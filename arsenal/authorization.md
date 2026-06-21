@@ -60,6 +60,13 @@ Apply it to every controller that touches user-owned or money-related data, plus
   Rails.cache.fetch("dashboard") { current_user.dashboard }                 # Problem — one user's data to everyone
   Rails.cache.fetch([current_user, :dashboard]) { current_user.dashboard }  # Fix — keyed per user
   ```
+- **Turbo Stream broadcasts rendered for the wrong audience**: `broadcasts_to` renders the partial once, with no request context (no `current_user`), and sends the *same* HTML to every subscriber of the stream. A partial with viewer-specific content — an owner-only Edit/Delete button, another user's private fields — either breaks or leaks to everyone subscribed. Only `turbo_stream_from` a stream on pages where the viewer may receive every future broadcast to it.
+
+  ```ruby
+  broadcasts_to ->(comment) { [comment.post, :comments] }  # Problem — one partial (no current_user) to all subscribers
+  # Fix — broadcast only what every subscriber may see; keep per-viewer controls out of the partial
+  # (render them client-side, or use a per-recipient stream) — never current_user-dependent markup
+  ```
 - Authorization enforced in the **view** (hiding the button) but not in the controller — the request still works via curl.
 
   ```ruby
