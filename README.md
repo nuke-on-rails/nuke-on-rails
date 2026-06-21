@@ -171,6 +171,16 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 </details>
 
 <details>
+<summary><strong><a href="arsenal/ci-cd.md">CI/CD workflow security</a></strong></summary>
+
+* `pull_request_target` running a fork's code with the repo's secrets (RCE / exfiltration)
+* Untrusted `${{ }}` (PR title, branch) interpolated into a `run:` shell (script injection)
+* Third-party actions pinned to a moving tag instead of a SHA (supply chain)
+* Long-lived cloud keys as CI secrets instead of OIDC; over-broad `GITHUB_TOKEN` permissions
+
+</details>
+
+<details>
 <summary><strong><a href="arsenal/cve.md">Dependencies & versions</a></strong></summary>
 
 * Known CVEs in your gems and in the Ruby version itself
