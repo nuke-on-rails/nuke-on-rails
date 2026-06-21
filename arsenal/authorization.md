@@ -123,11 +123,11 @@ In a multi-tenant app (SaaS with `account`/`organization`/`workspace` scoping) t
   ActsAsTenant.current_tenant = Account.find(params[:account_id])  # Problem — attacker names any account
   set_current_tenant(current_user.account)                         # Fix — tenant from the authenticated session
   ```
-- **Per-query scoping instead of a default guarantee.** Hand-written `where(account: current_account)` on every query is one missed call away from a leak — and the miss is invisible in review. Look for the *absence* of a structural guarantee (`acts_as_tenant`, `ActsAsTenant.current_tenant`, a `default_scope`, or a multitenant gem) on tenant-owned models. A bare `Project.find(params[:id])` in a tenant app is a cross-tenant IDOR.
+- **Per-query scoping instead of a default guarantee.** Hand-written `where(account: current_account)` on every query is one missed call away from a leak — and the miss is invisible in review. Look for the *absence* of a structural guarantee (`acts_as_tenant`, `ActsAsTenant.current_tenant`, a `default_scope`, or a multitenant gem) on tenant-owned models. A bare `Project.find(params[:id])` in a tenant app is a cross-tenant IDOR. And `acts_as_tenant` only *fails closed* when `require_tenant = true` — without it (the default), a query that loses the tenant context silently returns **every** tenant's rows instead of raising, so the gem's mere presence is false confidence.
 
   ```ruby
   Project.where(account_id: current_account.id).find(params[:id])  # Problem — one forgotten scope = leak
-  Project.find(params[:id])  # Fix — with acts_as_tenant, every query is implicitly scoped to the tenant
+  Project.find(params[:id])  # Fix — acts_as_tenant scopes every query (set require_tenant = true so it fails closed)
   ```
 - **`unscoped` / `default_scope` override on a reachable path.** `unscoped`, `Model.default_scoped(false)`, or a `with_tenant`/admin scope used inside a user-facing action defeats the isolation that exists elsewhere — grep for it and confirm none sit on a request path.
 
