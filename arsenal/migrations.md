@@ -8,6 +8,7 @@ Apply it to recent migrations (the ones about to ship) in `db/migrate/`, read ag
 
 - **`add_column` with `null: false` and no default** (or a default on Postgres < 11) — rewrites every row under a lock. The safe shape is three steps: add nullable → backfill in batches → add the `NOT NULL` constraint (validated separately).
 - **`add_index` without `algorithm: :concurrently`** — a plain `add_index` blocks writes for the whole build. Concurrent index creation needs `disable_ddl_transaction!` in the migration; flag the pair being absent together.
+- **`add_index ..., unique: true` without deduping existing rows first** — if the table already holds duplicates, index creation fails and the migration aborts mid-deploy (often only in the environment that has the dupes). Dedupe in the same migration, immediately before adding the index. In a multi-tenant app the uniqueness is usually per-tenant, so the index is composite (`[:account_id, :email]`), not global. Pairs with the `validates uniqueness` finding in `arsenal/activerecord.md`.
 - **`change_column`** that changes type (or `change_column_null` on a big table without a pre-validated check constraint) — full table rewrite under lock.
 - **`add_foreign_key`** in one shot — validating the constraint takes a lock proportional to the table. The safe shape is `add_foreign_key ..., validate: false` then `validate_foreign_key` in a later migration.
 - **`add_check_constraint`** without `validate: false` — same lock as above.
@@ -30,6 +31,13 @@ class AddIndexAndFlagToOrders < ActiveRecord::Migration[8.0]
     # then, separately: backfill in batches → change_column_null with a pre-validated constraint
   end
 end
+```
+
+```ruby
+add_index :users, :email, unique: true  # Problem — aborts if the table already has duplicate emails
+# Fix — dedupe in the same migration, then add the index (composite per tenant if multi-tenant)
+execute "DELETE FROM users a USING users b WHERE a.email = b.email AND a.id > b.id"
+add_index :users, :email, unique: true
 ```
 
 ## Backfills inside a schema migration
