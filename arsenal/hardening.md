@@ -114,6 +114,28 @@ class Document < ApplicationRecord
 end
 ```
 
+## Server-side request forgery (SSRF)
+
+A controller or service that fetches a **user-supplied URL** server-side — link unfurl/preview, import-from-URL, avatar-from-URL, webhook registration, PDF/screenshot-from-URL, SSO metadata fetch — lets an attacker point it at internal targets: cloud metadata (`169.254.169.254` → IAM credentials), internal services, `localhost`, or `file://`. Brakeman flags some `Net::HTTP`/`open`/`open-uri` sinks but not the missing allowlist or the reachability. Trace every outbound request whose URL derives from params, a DB field, or user content. OWASP 2025 A10.
+
+```ruby
+# Problem — fetches whatever URL the user provides; an attacker reads cloud IAM credentials
+def import
+  body = Net::HTTP.get(URI(params[:url]))   # → http://169.254.169.254/latest/meta-data/iam/...
+end
+
+# Fix — allow only http/https, resolve the host, reject private/loopback/link-local, no redirects
+def import
+  uri = URI(params[:url])
+  return head :bad_request unless %w[http https].include?(uri.scheme)
+  ip = IPAddr.new(Resolv.getaddress(uri.host))
+  return head :forbidden if ip.private? || ip.loopback? || ip.link_local?
+  body = Faraday.get(uri.to_s) { |f| f.options.timeout = 5 }.body
+end
+```
+
+Allowlist hosts where you can. The hand-rolled check above still has a gap — a DNS that resolves differently on the second lookup, or an HTTP redirect to an internal address, slips past it; the `ssrf_filter` gem closes both (it re-checks on every redirect). SSRF to cloud metadata is **confirmed-critical** — it yields IAM credentials. The model-driven variant — a tool that fetches a URL the LLM chose — is in `arsenal/ai.md`.
+
 ## Severity and remedies
 
 Most findings here are the **hardening tier**: above quality findings, below demonstrated exploits. Two exceptions that rank as confirmed-critical when present: an unauthenticated Sidekiq/admin dashboard, and a cookie-authenticated action with CSRF skipped. Remedies are almost always one line in `production.rb` or `routes.rb` — say which line. For throttling, the named remedy is rack-attack.
