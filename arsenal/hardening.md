@@ -57,7 +57,7 @@ end
 
 ## Exposure through config
 
-- **Unauthenticated mounted dashboards** — `mount Sidekiq::Web`, PgHero, Flipper UI in `routes.rb` without an authentication constraint: confirmed-critical territory (job args often contain PII; some dashboards can execute things), not a config nit.
+- **Unauthenticated mounted dashboards** — `mount Sidekiq::Web`, `mount MissionControl::Jobs::Engine` (the Solid Queue dashboard, default in Rails 8), PgHero, Flipper UI in `routes.rb` without an authentication constraint: confirmed-critical territory (job args often contain PII; some dashboards can retry/discard jobs or execute things), not a config nit. On a modern Rails 8 app the exposed dashboard is usually Mission Control, not Sidekiq — check for both.
 - **Debug/console gems reachable in production** — `web-console`, `better_errors`, `binding_of_caller` in the default or `production` Gemfile group (not confined to `:development`), or `config.web_console.*` left enabled: an exposed console is remote code execution. Read the Gemfile groups and the production config. Confirmed-critical.
 - `config.consider_all_requests_local = true` in production — stack traces to users.
 - `config.filter_parameters` missing the app's actual sensitive fields (tokens, documents, card data) — secrets in logs.
