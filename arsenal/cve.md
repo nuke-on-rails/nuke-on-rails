@@ -23,6 +23,13 @@ gem "acme", git: "https://github.com/some-user/acme.git", ref: "a1b2c3d"
 
 A modern Rails app ships JS the gem engines never see. Detect the toolchain and audit it: `bin/importmap audit` (importmap-rails), or `yarn npm audit` / `npm audit` when a `package.json`/`yarn.lock` is present. Triage the hits exactly like gem CVEs — reachability, severity, fix version. If the app has no JS dependencies, note that the check found none rather than skipping silently.
 
+Beyond known CVEs, importmap carries a **supply-chain** exposure: a `pin` that points at an external CDN URL loads runtime JS from a third party with no integrity guarantee — a compromised or hijacked CDN runs arbitrary code in every user's browser (OWASP A08). Vendor the pins so the app serves them.
+
+```ruby
+pin "react", to: "https://ga.jspm.io/npm:react@18/index.js"  # Problem — runtime JS from a 3rd party, no integrity
+# Fix — vendor it: `bin/importmap pin react` downloads to vendor/javascript/ and serves it from your app
+```
+
 ## Reachability triage
 
 Installed is not exploitable. For each advisory, ask whether the app actually exercises the vulnerable component:
