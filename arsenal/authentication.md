@@ -23,6 +23,18 @@ The default `devise.rb` of a generated app is rarely touched. Check:
 - **`secret_key` / `pepper` hardcoded** in the initializer instead of credentials/ENV.
 - For apps with compliance-ish needs (password expiry, blocking password reuse, limiting concurrent sessions): the concrete remedy is **devise-security** and its modules (`password_expirable`, `password_archivable`, `session_limitable`) — recommend the gem, don't let anyone hand-roll those.
 
+```ruby
+# Problem — generated devise.rb left at defaults: user enumeration + a committed secret
+config.paranoid = false                    # reset/confirmation replies reveal whether an email exists
+config.pepper   = "hardcoded-pepper-value" # secret in the repo instead of credentials/ENV
+# (and :lockable absent from the model → unlimited password attempts)
+
+# Fix
+config.paranoid = true                     # uniform responses, no enumeration
+config.pepper   = Rails.application.credentials.devise_pepper
+# add :lockable to the model and throttle login with rate_limit / rack-attack
+```
+
 ## Custom Warden strategies and token flows
 
 Custom strategies (API token login, impersonation, SSO callbacks) hide in `config/initializers/`. Classic bugs:
@@ -34,6 +46,19 @@ Custom strategies (API token login, impersonation, SSO callbacks) hide in `confi
 - **Warden scope confusion**: `warden.set_user(user)` on the wrong scope (e.g. granting the `:admin` scope from a user-level flow); impersonation features that never check the impersonator's privilege.
 - **Failure apps / rescue handlers that leak *why* auth failed** ("wrong password" vs "no such user") — enumeration again.
 
+```ruby
+# Problem — the secret is looked up by value, then compared with ==: a timing oracle twice over
+user = User.find_by(api_token: params[:token])
+sign_in(user) if user && user.api_token == params[:token]
+
+# Fix — look it up by a non-secret id, then compare a stored digest in constant time
+user = User.find_by(id: params[:user_id])
+if user && ActiveSupport::SecurityUtils.secure_compare(
+     user.api_token_digest, Digest::SHA256.hexdigest(params[:token].to_s))   # .to_s blocks type confusion
+  sign_in(user)
+end
+```
+
 ## Sessions and resets
 
 - **Session fixation**: `reset_session` missing on login and logout (Devise handles this; hand-rolled auth usually forgets).
@@ -41,6 +66,23 @@ Custom strategies (API token login, impersonation, SSO callbacks) hide in `confi
 - **Sensitive data in the cookie session store** (role flags, feature gates the client can replay).
 - **Password reset flow** (hand-rolled): token guessable or unexpired, token not invalidated after use, response revealing account existence.
 - **JWTs, if present**: no expiry, `none` algorithm accepted, secret shared with other purposes, tokens irrevocable by design with no denylist.
+
+```ruby
+# Problem — hand-rolled login never rotates the session id → session fixation
+def create
+  user = User.authenticate_by(email: params[:email], password: params[:password])
+  session[:user_id] = user.id if user   # the pre-login session id survives, so an attacker can fixate it
+end
+
+# Fix — reset the session on every privilege change (login and logout)
+def create
+  user = User.authenticate_by(email: params[:email], password: params[:password])
+  if user
+    reset_session
+    session[:user_id] = user.id
+  end
+end
+```
 
 ## Severity
 

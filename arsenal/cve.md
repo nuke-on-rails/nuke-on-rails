@@ -11,6 +11,14 @@ Honesty first: an empty engine result means "no known advisories in ruby-advisor
 - **Concrete fix:** `patched_versions`, as "bump gem X to ≥ Y".
 - **Insecure gem sources** (`git://`, `http://` in the Gemfile) come in the same output: triage who controls that source and whether it's pinned to a commit — an unpinned gem from a personal fork is a supply-chain finding, not a style note.
 
+```ruby
+# Problem — a gem pulled over an unencrypted protocol from a personal fork, unpinned
+gem "acme", git: "git://github.com/some-user/acme.git"   # git:// is unauthenticated; HEAD floats
+
+# Fix — HTTPS source pinned to a reviewed commit (or the canonical RubyGems release)
+gem "acme", git: "https://github.com/some-user/acme.git", ref: "a1b2c3d"
+```
+
 ## JavaScript dependencies (the other half of the lockfile)
 
 A modern Rails app ships JS the gem engines never see. Detect the toolchain and audit it: `bin/importmap audit` (importmap-rails), or `yarn npm audit` / `npm audit` when a `package.json`/`yarn.lock` is present. Triage the hits exactly like gem CVEs — reachability, severity, fix version. If the app has no JS dependencies, note that the check found none rather than skipping silently.
@@ -22,6 +30,17 @@ Installed is not exploitable. For each advisory, ask whether the app actually ex
 - A net-imap CVE in an app that never touches IMAP → **theoretical** (recommend the bump anyway — it's cheap insurance).
 - Rack, puma, erb and friends are reachable *by construction* in any web-facing Rails app — don't theoretical-ize the request path.
 - Confirmed reachable + high CVSS competes for the top of the report; theoretical ranks below quality hotspots but stays in the list with its one-line fix.
+
+```text
+# Problem — a reachable advisory in a web-facing gem (bundler-audit output)
+Name: rack   Version: 3.1.7
+Advisory: CVE-2025-XXXXX  (CVSS 7.5 — HTTP request smuggling)
+Solution: upgrade to >= 3.1.8
+→ rack is in every request path by construction: reachable, not "theoretical".
+
+# Fix
+bundle update rack --conservative   # clears the advisory with the smallest possible bump
+```
 
 ## Network cross-checks (the database's blind spots)
 
@@ -36,6 +55,15 @@ The agent has web access; the engines don't. Two blind spots, three checks — a
 The engines flag *known CVEs against the current version*; they do not flag that a version is **past end-of-life and will never receive another patch**. An EOL Rails or Ruby with a clean bundler-audit today is still a standing critical risk — the next CVE (like the March 2026 Rails path-traversal/XSS/DoS fixes) simply won't be backported. Auditors treat EOL as a critical compliance finding (PCI DSS, HIPAA).
 
 Check both clocks independently (the "dual EOL" problem) — Ruby from `.ruby-version`/`Gemfile`, Rails from `Gemfile.lock`. EOL dates move, so verify against current support status (endoflife.date, the Rails maintenance policy) when online rather than trusting a hardcoded table. Snapshot as of 2026 for reference: **Ruby** ≤3.1 EOL, 3.2 EOL March 2026, 3.3–3.4 supported; **Rails** ≤7.1 EOL, 7.2 security-only until Aug 2026, 8.0 supported. Report an EOL runtime/framework as confirmed-critical with the concrete remedy: the nearest supported upgrade target.
+
+```text
+# Problem — the clock the engines DON'T flag: a runtime past end-of-life
+ruby 3.1.x   →   EOL: no future security patch will ever be backported
+# bundler-audit can be clean today and this is still a standing critical risk —
+# the next Ruby/Rails CVE simply won't reach this version.
+
+# Fix — plan the upgrade to a supported line (Ruby 3.3+, a maintained Rails)
+```
 
 ## Reporting
 

@@ -68,12 +68,50 @@ The classic smells of this lens, in their Rails form:
 - **Fat models**: god objects (usually `User`) accumulating every concern in the app. The fix is extraction into POROs, service objects, or domain modules — not a `concerns/` folder that hides the same mess.
 - **Rug concerns**: `app/models/concerns/` used as a rug to sweep code under. A concern that is only included in one model is a file split pretending to be an abstraction.
 - **Callback-driven business logic**: chains of `before_save`/`after_commit` that implement workflows invisibly. Side effects belong in an explicit object the caller invokes, not in hooks that fire by surprise.
+
+  ```ruby
+  # Problem — a workflow hidden in a callback: creating a User silently emails and charges
+  class User < ApplicationRecord
+    after_create :send_welcome_email, :charge_signup_fee   # fires on every create — tests, imports, admin
+  end
+
+  # Fix — make the side effects an explicit step the caller invokes
+  class RegisterUser
+    def call(attrs) = User.create!(attrs).tap { |user| Onboarding.new(user).run }
+  end
+  ```
 - **Controller bloat**: business decisions, queries, and orchestration living in actions. Controllers should authenticate, authorize, delegate, and respond.
 - **Logic in views and helpers**: conditionals and data shaping in ERB or in grab-bag helper modules.
 - **N+1 and query leakage**: queries scattered through views and serializers; missing `includes`; `.all` loaded into memory to filter in Ruby.
+
+  ```ruby
+  # Problem — N+1: one query for the posts, then one more per post for its author (1 + N queries)
+  @posts = Post.all
+  # in the view: <% @posts.each do |post| %> <%= post.author.name %> <% end %>
+
+  # Fix — eager-load the association: two queries total, no matter how many posts
+  @posts = Post.includes(:author)
+  ```
 - **Scope/SQL drift**: raw SQL strings duplicating what scopes already express, or scopes so complex they hide an unindexed query.
 - **`default_scope`**: it silently rewrites every query on the model and breaks expectations the moment someone needs `unscoped`. Treat any non-trivial `default_scope` as a finding.
 - **Swallowed exceptions**: `rescue Exception`, bare `rescue` returning nil, or rescue blocks that log nothing — failure hidden to "make it work" is debt with interest, and a hallmark of unreviewed AI-generated code.
+
+  ```ruby
+  # Problem — failure hidden to "make it work": the charge can fail and the order still ships
+  def checkout
+    Payment.charge!(order)
+  rescue => e   # swallowed: nothing logged, nothing re-raised
+    nil
+  end
+
+  # Fix — handle the specific error, record it, and let the rest fail loudly
+  def checkout
+    Payment.charge!(order)
+  rescue Payment::Declined => e
+    Rails.logger.warn("charge declined: #{e.message}")
+    raise
+  end
+  ```
 
 ## Primary Review Questions
 

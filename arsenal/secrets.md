@@ -20,6 +20,16 @@ git log --diff-filter=D --name-only --format= | sort -u | grep -E 'master\.key|\
 - Secrets in seeds, fixtures, or `database.yml` with production credentials.
 - `ENV.fetch("X", "actual-secret-as-fallback")` — the fallback ships the secret.
 
+```ruby
+# Problem — a live secret pasted into code (now in git history forever, even if deleted later)
+STRIPE = Stripe::Client.new("sk_live_51H8xQ2eZvKYlo3kQ...")
+secret = ENV.fetch("JWT_SECRET", "super-secret-prod-value")   # the fallback ships the secret
+
+# Fix — read from credentials / ENV, keep the secret out of the repo, then ROTATE the leaked one
+STRIPE = Stripe::Client.new(Rails.application.credentials.dig(:stripe, :secret_key))
+secret = ENV.fetch("JWT_SECRET")   # no fallback — fail loudly if it's unset
+```
+
 ## Severity and reporting
 
 A live credential in the repo is a **confirmed critical finding** — it competes with IDOR for the top of the report. State the blast radius ("this Stripe live key can issue refunds"). A key in history but rotated since, or clearly a test/dummy key, goes to "theoretical" — verify before accusing; a false "your key is leaked" burns trust like any false security claim.

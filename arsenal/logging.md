@@ -12,11 +12,38 @@ Reference: Rails Security Guide §Logging and OWASP A09.
 - **Unredacted user data sent to third-party services — especially LLMs.** A controller or job that pipes `params[:message]`, a user record, or free text straight into an OpenAI/Anthropic/external API call leaks PII outside the trust boundary. This is a signature flaw of AI-built apps (they integrate AI casually) and no engine sees it. Trace user data into outbound HTTP/SDK calls; the named remedy is redacting PII first (e.g. the `top_secret` gem: filter before the call, restore after).
 - **Tokens/session ids logged** by custom middleware or `before_action` debug code left in.
 
+```ruby
+# Problem — Rails filters :password by default, but not these — they land in plaintext prod logs
+# config/initializers/filter_parameter_logging.rb
+Rails.application.config.filter_parameters += [:password]   # ssn, card_number, api_token NOT filtered
+# ...and an explicit dump bypasses parameter filtering entirely:
+Rails.logger.info "charge: #{params.to_unsafe_h}"
+
+# Fix — filter every sensitive field (a regex catches variants); never dump raw params
+Rails.application.config.filter_parameters += [
+  :password, :ssn, :card_number, :cvv, :otp, /token/, /secret/, /_key/
+]
+```
+
 ## Missing security logging (the blind spot)
 
 - **No audit trail on security-critical events**: login success/failure, password/email change, privilege change, payment, admin actions. If an attacker can act and nothing records it, detection and forensics are impossible. Flag the absence on money/account paths specifically.
 - **Failed-authentication attempts not recorded** — no way to see credential stuffing in progress (pairs with the brute-force checks in `arsenal/authentication.md` and rack-attack).
 - **No distinction in logs between a user acting on their own data and on someone else's** — makes IDOR exploitation invisible after the fact.
+
+```ruby
+# Problem — money changes hands and nothing records who did it → no forensics after an incident
+def refund
+  order.refund!(params[:amount])   # actor, target, amount, time all unrecorded
+  redirect_to order
+end
+
+# Fix — record security-critical events (audited / paper_trail, or an explicit audit log)
+def refund
+  order.refund!(params[:amount])
+  AuditLog.create!(actor: current_user, action: "refund", target: order, amount: params[:amount])
+end
+```
 
 ## Severity and remedies
 

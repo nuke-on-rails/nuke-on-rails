@@ -8,6 +8,24 @@ Reference: Rails Security Guide and OWASP A04 — link findings to them.
 
 The highest-value finding in this lens: **one encryption/signing routine reused for both a trust token and user-supplied data.** If the same `encrypt_sensitive_value` that mints the auth/remember-me cookie also encrypts a value the user can submit and read back (a bank account number rendered in a JSON response), the user has an encryption oracle — they feed in any user id, get back a valid auth token, and authenticate as anyone. Trace every use of a crypto helper: if one call signs/encrypts an authorization value and another encrypts attacker-controllable data with the same key, that is a confirmed-critical finding.
 
+```ruby
+# Problem — one helper encrypts both the auth token and user-readable data with one static key.
+# Submit any user id as a "bank account", read the ciphertext back → a valid auth token for anyone.
+def encrypt(value)
+  cipher = OpenSSL::Cipher.new("aes-256-cbc").encrypt          # unauthenticated mode, no MAC
+  cipher.key = Rails.application.secret_key_base[0, 32]        # one key, no random IV
+  cipher.update(value) + cipher.final
+end
+auth_cookie       = encrypt(user.id.to_s)                      # a trust token...
+encrypted_account = encrypt(params[:bank_account])             # ...minted by the same oracle
+
+# Fix — separate primitives for separate purposes; never share a key between trust and data
+auth_cookie = ActiveSupport::MessageVerifier.new(secret).generate(user.id)   # signed, not decryptable input
+class Account < ApplicationRecord
+  encrypts :bank_account                                       # AR Encryption: random IV, authenticated, own key
+end
+```
+
 ## What to flag
 
 - **Hand-rolled crypto instead of Rails primitives.** Custom `OpenSSL::Cipher` routines where `ActiveRecord::Encryption` (encrypted columns), `ActiveSupport::MessageEncryptor`/`MessageVerifier` (signed/encrypted tokens), or `has_secure_password` (bcrypt) is the right tool. Rails 8 ships all three — rolling your own is the smell.
@@ -18,6 +36,20 @@ The highest-value finding in this lens: **one encryption/signing routine reused 
 - **Token comparison with `==`** instead of `ActiveSupport::SecurityUtils.secure_compare` — timing attack (overlaps `arsenal/authentication.md`).
 - **Sensitive columns stored in plaintext** — bank/tax/health/document numbers without `encrypts :column` (ActiveRecord Encryption). Read the schema for obviously sensitive column names with no encryption.
 - **Reversible encryption where a one-way hash belongs** — if a value is only ever compared, not displayed, it should be hashed, not decryptable.
+
+```ruby
+# Problem — passwords through a fast hash, and a sensitive column left in plaintext
+self.password_digest = Digest::SHA256.hexdigest(params[:password])  # fast hash → crackable at scale
+# ...and the schema stores :account_number as a plain string column
+
+# Fix — bcrypt for passwords, ActiveRecord Encryption for sensitive columns
+class User < ApplicationRecord
+  has_secure_password   # bcrypt, salted per password
+end
+class Account < ApplicationRecord
+  encrypts :account_number
+end
+```
 
 ## Severity and remedies
 
