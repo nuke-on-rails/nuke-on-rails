@@ -8,6 +8,14 @@ Nuke on Rails is an open source skill (Claude Code and cross-agent) that audits 
 
 **The quality bar:** the skill must work first time on any Rails repo, with zero setup, and produce a result the developer couldn't get by just asking an agent to "review my code".
 
+## Read these first, in order
+
+1. **This file** — principles, hard rules, architecture, and the OWASP coverage map.
+2. **`SKILL.md`** — the engine: the five-step audit pipeline the agent runs.
+3. **`arsenal/`** — the weapons applied on top of the engines; **`arsenal/_TEMPLATE.md`** is the house structure for a weapon.
+4. **`CONTRIBUTING.md`** — how to add or deepen a weapon, and the acceptance bar.
+5. **`EVALS.md`** — the RailsGoat must-catch regression checklist.
+
 ## Hard rules
 
 - **Published artifacts are written in fluent English** — README, SKILL.md, the arsenal, issues, PRs, releases, commit messages. The audience is the global Rails community. **The runtime audit is the exception: the generated report and step announcements match the language the user writes in.**
@@ -30,6 +38,15 @@ Three deterministic engines + LLM as judge:
 - **Every bullet that names a concrete, code-level problem carries a tight `# Problem` / `# Fix` example** — a fenced code block right under the bullet, usually two lines (a problem line and a fix line with trailing comments). The example is the point: it turns a description into something recognizable on sight, which is exactly what a developer can't get by asking an agent to "review my code". Keep each minimal so the file still scans — this is reinforced everywhere, but never at the cost of readability. Exempt: methodology/process steps, severity prose, and pure principles that have no single code form.
 - **The canonical source for the security arsenal is the official Rails Security Guide** (https://guides.rubyonrails.org/security.html) — distill from it, link findings to its sections, and re-check the arsenal against it on new Rails releases. Prefer it over community checklists, which go stale. (Exception: AI/LLM risks aren't in the Rails guide — `arsenal/ai.md` distills from the OWASP LLM Top 10 and the OWASP LLM Prompt Injection Prevention Cheat Sheet.)
 - **Coverage is tracked against the OWASP Top 10 2025**, with OWASP RailsGoat (and its Rails 8 wiki) as the worked-example corpus and regression target (the must-catch checklist lives in `EVALS.md`). Current mapping: A01→authorization, A02→hardening, A03→cve, A04→cryptography, A05→Brakeman, A06→code-quality+architecture+activerecord (architecture distils archspec's boundary/dependency-direction techniques; activerecord owns ActiveRecord correctness/integrity — callback/transaction timing, query determinism, association integrity), A07→authentication, A08→Brakeman (mass assignment/deserialization)+ci-cd (CI/CD pipeline integrity — `pull_request_target`, script injection, unpinned actions, OIDC vs stored keys), A09→logging, A10→hardening+code-quality. A category with no strong owner is the next weapon to add. **Availability/operational findings fall outside the OWASP web Top 10 and are owned by `arsenal/migrations.md`** (zero-downtime migration safety — table-locking statements, in-migration backfills, expand/contract deploy hazards) **and `arsenal/jobs.md`** (background-job safety — idempotency on retry, secrets/PII in job arguments, stale records as arguments; the secret-in-args case also touches A09 disclosure); both sit in the arsenal deliberately off the OWASP map. **AI/LLM integration is tracked against the OWASP LLM Top 10 2025** (LLM01 prompt injection, LLM02 sensitive-info disclosure, LLM05 improper output handling, LLM06 excessive agency, LLM10 unbounded consumption), cutting across web A03/A06/A09; owned by `arsenal/ai.md`.
+
+## What Nuke on Rails is NOT
+
+- **Not a linter.** RuboCop / Standard own style and cosmetic nits (`Time.now` vs `Time.current`); this skill flags structural and security issues, not lint.
+- **Not a replacement for the engines.** It runs rubycritic, Brakeman, and bundler-audit, *triages* their output, and covers the gaps they can't reach — it does not reimplement them.
+- **Not a fixer.** The output is one impact-ranked plan a principal engineer would sign, not patches or PRs.
+- **Not a gem.** Zero-dependency: it brings its own tools, never touches the app's Gemfile, and ships no code to `require`.
+- **Not a compliance certification.** It catches the code-detectable issues that map to OWASP and compliance regimes; it does not replace a legal/audit program (BAAs, retention policy, breach process).
+- **In scope, deliberately:** the repo's own CI pipeline (`arsenal/ci-cd.md`) and operational/availability findings (`arsenal/migrations.md`, `arsenal/jobs.md`), even though they sit off the OWASP web map.
 
 ## Internal docs
 
