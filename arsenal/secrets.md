@@ -5,12 +5,13 @@ API keys pasted into code and key files committed to git — alongside IDOR, the
 ## Deterministic checks (run these, don't guess)
 
 ```sh
-git ls-files | grep -E 'master\.key|credentials.*\.key|\.env($|\.)'   # key files under version control
-git log --diff-filter=D --name-only --format= | sort -u | grep -E 'master\.key|\.env'   # deleted ≠ gone
+git ls-files | grep -E 'master\.key|credentials.*\.key|\.env($|\.)|\.kamal/secrets'   # key files under version control
+git log --diff-filter=D --name-only --format= | sort -u | grep -E 'master\.key|\.env|\.kamal/secrets'   # deleted ≠ gone
 ```
 
 - **`config/master.key` (or any `credentials/*.key`) committed** — `credentials.yml.enc` is now plaintext for anyone with repo access. Critical.
 - **`.env` / `.env.production` versioned** — same class, no decryption needed.
+- **`.kamal/secrets` committed** — holds the registry password, `RAILS_MASTER_KEY`, and infra credentials in plaintext; it must be gitignored.
 - A key file that was committed once and later deleted is **still compromised**: it lives in history.
 
 ## Code reading (on initializers, config, and hotspot files)
@@ -18,6 +19,7 @@ git log --diff-filter=D --name-only --format= | sort -u | grep -E 'master\.key|\
 - Hardcoded credentials: `sk_live_`/`sk-` (Stripe/OpenAI), `AKIA` (AWS), Twilio SIDs, SMTP passwords, JWT secrets, webhook signing secrets — especially in `config/initializers/` and service classes.
 - Devise `pepper`/`secret_key` inline (the authentication lens checks this too).
 - Secrets in seeds, fixtures, or `database.yml` with production credentials.
+- Secrets baked into a `Dockerfile` / `docker-compose.yml` — an `ENV`/`ARG` holding a real secret, or a `COPY` of a key file. Image layers preserve it forever, recoverable even if a later layer deletes it. Rails 8 ships a `Dockerfile` by default, so this surface is common.
 - `ENV.fetch("X", "actual-secret-as-fallback")` — the fallback ships the secret.
 
 ```ruby
