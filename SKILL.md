@@ -74,6 +74,7 @@ Then bring the security arsenal to the routes file, the sensitive controllers an
 - `arsenal/cryptography.md` — encryption oracles, hand-rolled crypto, weak hashing, plaintext sensitive columns
 - `arsenal/logging.md` — sensitive data in logs, missing audit trail on security-critical events
 - `arsenal/ai.md` — prompt injection, LLM output rendered as XSS, PII leaked to model APIs, over-powered tool-use (skip if the app makes no LLM calls)
+- `arsenal/ci-cd.md` — pipeline security in `.github/workflows/` / `.gitlab-ci.yml` / `Jenkinsfile`: `pull_request_target` running fork code, untrusted `${{ }}` in shells, unpinned actions, long-lived cloud keys (skip if the repo has no CI config)
 
 They cover what Brakeman can't reach. The arsenal *covers* those areas; it does not *guarantee* them. Be explicit about that distinction in the report.
 
