@@ -192,6 +192,16 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 </details>
 
 <details>
+<summary><strong><a href="arsenal/architecture.md">Architectural boundaries</a></strong></summary>
+
+* Dependency direction: a model or service reaching up into the web layer (`params`, `render`, `*Controller`)
+* Dependency cycles: two namespaces that reference each other and became one unit
+* One-shot object ceremony (`Foo.new(x).call`) and inconsistent component entry points
+* Zeitwerk name/path drift (`billing/charge.rb` not defining `Billing::Charge`)
+
+</details>
+
+<details>
 <summary><strong><a href="arsenal/migrations.md">Migration safety</a></strong></summary>
 
 * Schema changes that lock or rewrite large tables (`null: false` without default, non-concurrent indexes, type changes, foreign keys validated in one shot)

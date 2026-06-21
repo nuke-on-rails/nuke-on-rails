@@ -83,6 +83,8 @@ Apply `arsenal/code-quality.md` — the thermo-nuclear standards, translated to 
 
 Then apply `arsenal/migrations.md` to the recent migrations in `db/migrate/` (read against `db/schema.rb` for table sizes) — the availability lens no engine owns. A migration that locks or rewrites a large, traffic-heavy table, or drops/renames a column ahead of the code that uses it, is a scheduled outage, not a code smell: rank it accordingly.
 
+Also apply `arsenal/architecture.md` to the `app/` layer folders and the hotspots — dependency *direction* and cycles, which rubycritic's per-file scores miss: a model reaching up into the web layer, two namespaces that reference each other, or Zeitwerk name/path drift.
+
 ## Step 5 — The report (output)
 
 This section is the single source of truth for how the report reads: language, tone, structure, and the closing summary. Write the whole report in the user's language (see the top of this file).
