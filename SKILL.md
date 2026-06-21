@@ -125,4 +125,6 @@ Then the findings, as one list ranked by impact:
 
 If something was weighed and isn't worth doing, say so in one line — the reader should know it was considered, not missed.
 
+**The report is sensitive.** It enumerates live, confirmed vulnerabilities and their exploit paths — it belongs with the people who can fix the app, not a public issue tracker or an open channel. If findings are published anywhere shared or public, redact the security specifics (exploit path, credential location) first.
+
 The whole thing reads like a plan a principal engineer would hand you, not a tool dump.
