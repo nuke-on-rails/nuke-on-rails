@@ -82,7 +82,7 @@ The classic smells of this lens, in their Rails form:
   ```
 - **Controller bloat**: business decisions, queries, and orchestration living in actions. Controllers should authenticate, authorize, delegate, and respond.
 - **Logic in views and helpers**: conditionals and data shaping in ERB or in grab-bag helper modules.
-- **N+1 and query leakage**: queries scattered through views and serializers; missing `includes`; `.all` loaded into memory to filter in Ruby.
+- **N+1 and query leakage**: queries scattered through views and serializers; missing `includes`; `.all` loaded into memory to filter in Ruby. Two variants worth naming: a **`.count` inside a loop** (`post.comments.count` per row → a `SELECT COUNT(*)` each; the fix is `counter_cache` + `.size`), and a **raw query inside a loop** (`User.find_by(...)` per element, no association — the kind association-aware detection misses).
 
   ```ruby
   # Problem — N+1: one query for the posts, then one more per post for its author (1 + N queries)
@@ -92,6 +92,8 @@ The classic smells of this lens, in their Rails form:
   # Fix — eager-load the association: two queries total, no matter how many posts
   @posts = Post.includes(:author)
   ```
+
+  A static read finds the *shape* (a loop over a collection that touches an association with no eager-load), not the query *count* — report it as "covers, doesn't guarantee". The durable remedy is detection in CI: **Bullet** (dev + test, `raise` on N+1) plus **Prosopite** for the raw-query-in-a-loop case Bullet can't see.
 - **Scope/SQL drift**: raw SQL strings duplicating what scopes already express, or scopes so complex they hide an unindexed query.
 - **`default_scope`**: it silently rewrites every query on the model and breaks expectations the moment someone needs `unscoped`. Treat any non-trivial `default_scope` as a finding.
 - **Swallowed exceptions**: `rescue Exception`, bare `rescue` returning nil, or rescue blocks that log nothing — failure hidden to "make it work" is debt with interest, and a hallmark of unreviewed AI-generated code.
