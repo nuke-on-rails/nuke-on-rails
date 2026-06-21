@@ -67,6 +67,12 @@ Apply it to every controller that touches user-owned or money-related data, plus
   # Fix — broadcast only what every subscriber may see; keep per-viewer controls out of the partial
   # (render them client-side, or use a per-recipient stream) — never current_user-dependent markup
   ```
+- **ActionCable channels that subscribe without ownership scoping**: a `Channel#subscribed` that does `stream_for Room.find(params[:id])` lets any authenticated user subscribe to any room's stream by id and receive every broadcast to it — IDOR over the websocket (messages, presence) on a resource they don't belong to. Scope the lookup through the requester; authenticate `Connection#connect` with the same identity resolution as HTTP.
+
+  ```ruby
+  def subscribed; stream_for Room.find(params[:id]); end               # Problem — any user streams any room by id
+  def subscribed; stream_for current_user.rooms.find(params[:id]); end # Fix — scoped to the subscriber's rooms
+  ```
 - Authorization enforced in the **view** (hiding the button) but not in the controller — the request still works via curl.
 
   ```ruby
