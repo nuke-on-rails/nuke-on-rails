@@ -97,7 +97,8 @@ end
 
 ## Files
 
-- Uploads: no content-type/extension allowlist, or user-uploaded HTML/SVG served from the app's own domain (stored XSS). ActiveStorage/CarrierWave validations are semantic — Brakeman won't see their absence.
+- Uploads: no content-type/extension allowlist, or user-uploaded HTML/SVG served from the app's own domain (stored XSS). And the `content_type` an allowlist validates is the **client-supplied header** — `malware.exe` renamed `pic.jpg` passes it; sniff the magic bytes (Marcel) for security-critical uploads. ActiveStorage/CarrierWave validations are semantic — Brakeman won't see their absence.
+- **Public storage bucket** — `public: true` in `config/storage.yml` disables URL signing: every uploaded file is world-readable forever to anyone who learns the URL. Use `public: false` + short-TTL signed URLs for user content.
 - `send_file` / `send_data` with user-influenced paths or filenames (Brakeman flags some; confirm the rest).
 - **User-supplied markdown/HTML rendered unsafely** — `Redcarpet::Render::HTML` (instead of `::Safe`) on user content, `filter_html: false`, CommonMarker without `:SAFE`, or `sanitize` with an over-broad tag allowlist: stored XSS that Brakeman doesn't reliably catch at the library-config level.
 
@@ -107,11 +108,18 @@ class Document < ApplicationRecord
   has_one_attached :file   # accepts anything
 end
 
-# Fix — validate the content type (and serve user files from a separate domain)
+# Fix — validate the content type; for security-critical uploads sniff magic bytes (header is client-set)
 class Document < ApplicationRecord
   has_one_attached :file
-  validates :file, content_type: ["image/png", "image/jpeg", "application/pdf"]
+  validates :file, content_type: ["image/png", "image/jpeg", "application/pdf"]  # + a Marcel magic-byte check
 end
+```
+
+```yaml
+# Problem — config/storage.yml: a public bucket serves user uploads unsigned, readable forever
+amazon: { service: S3, bucket: myapp, public: true }
+# Fix — keep the bucket private; Active Storage then hands out short-TTL signed URLs
+amazon: { service: S3, bucket: myapp, public: false }
 ```
 
 ## Server-side request forgery (SSRF)
