@@ -8,13 +8,16 @@ For JSON endpoints — API-mode apps, `/api` namespaces, or any controller that 
 - Serializers/jbuilder views with one shape for every consumer — admin-only fields delivered to regular users (pairs with `arsenal/authorization.md`).
 - Associations included wholesale (`include:`, nested serializers) — the leak hides one level deep.
 - Index endpoints with **no pagination**: `Model.all.to_json` is a table dump — data exposure and a self-DoS in one line.
+- **Inertia props serialize models straight into the page**: `render inertia: "Show", props: { post: post.as_json }` (no `only:`) ships every column into the page's props — the same over-exposure as `render json:`, just rendered into the HTML/JS instead of a JSON body. Allowlist fields the same way (a model dumped into a `data-*` attribute via `to_json` leaks identically).
 
 ```ruby
 # Problem — ships every column: password_digest, api_token, the admin flag, internal ids, PII
 render json: User.find(params[:id])
+render inertia: "Posts/Show", props: { post: Post.find(params[:id]).as_json }   # same leak, into the page props
 
 # Fix — an explicit allowlist of fields (a serializer, or only:)
 render json: User.find(params[:id]).as_json(only: [:id, :name, :avatar_url])
+render inertia: "Posts/Show", props: { post: Post.find(params[:id]).as_json(only: %i[id title]) }
 ```
 
 ## Cross-origin and abuse
