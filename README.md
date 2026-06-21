@@ -252,6 +252,15 @@ Deterministic scanners do the scanning; the LLM is the judge, not the author. On
 4. **Triages**: it kills false positives by reading the actual code path, brings the arsenal above, and adversarially verifies every security finding before it reaches the report. Anything it can't justify is downgraded to "theoretical," not sold as confirmed.
 5. **Returns one report, ranked by impact**: a plan a principal engineer would sign, not a tool dump.
 
+## Acknowledgments
+
+Weapons distil techniques into Nuke on Rails' own words and examples — never copied — with thanks to:
+
+* [rails-skills](https://github.com/sandeepmvl/rails-skills) (MIT) — idiomatic Rails patterns that informed the ActiveRecord, background-job, CI/CD, and several other weapons.
+* [archspec](https://github.com/crmne/archspec) (MIT) — the architectural-boundary techniques behind `arsenal/architecture.md`.
+
+The security arsenal is grounded in the [Rails Security Guide](https://guides.rubyonrails.org/security.html), the [OWASP Top 10](https://owasp.org/Top10/) and [OWASP LLM Top 10](https://genai.owasp.org/), with [OWASP RailsGoat](https://github.com/OWASP/railsgoat) as the regression corpus. Sources are cited, per [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=nuke-on-rails/nuke-on-rails&type=Date)](https://star-history.com/#nuke-on-rails/nuke-on-rails&Date)
