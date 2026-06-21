@@ -75,6 +75,15 @@ def stripe
 end
 ```
 
+## Outbound webhooks (if the app sends user-configured webhooks)
+
+- **Editable destination URL** — if a user can change a webhook's destination *after* creation, they can repoint it at their own server and receive every future signed event payload (other users'/tenant data), with the existing secret authenticating the delivery. Make the destination immutable after create (retargeting = a new webhook + a new secret), and SSRF-validate it at send time, not just on create (see `arsenal/hardening.md`).
+
+```ruby
+params.expect(webhook: [:name, :url])  # Problem (on update) — repointing exfiltrates signed payloads
+params.expect(webhook: [:name])        # Fix — destination immutable after create
+```
+
 ## GraphQL (if the app uses graphql-ruby)
 
 A GraphQL endpoint is one URL with a different threat model — none of the REST checks above catch it.
