@@ -134,6 +134,7 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 * Unauthenticated mounted dashboards (Sidekiq, PgHero, Flipper)
 * Debug / console gems shipped to production (a remote-code-execution surface)
 * Stack traces to users, unsafe uploads, stored XSS via markdown rendering
+* SSRF: a user-supplied URL fetched server-side (cloud metadata, internal services)
 
 </details>
 
