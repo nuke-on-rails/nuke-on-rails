@@ -1,8 +1,8 @@
-# Lens: ActiveRecord Correctness
+# Weapon: ActiveRecord Correctness
 
-The model reads fine, but the *ActiveRecord usage* is wrong or unsafe. This is the most distinctly-Rails lens — generic agents get the syntax right and the semantics wrong: a side effect in the callback that fires before the row commits, a "first" record that's whatever the database happened to return, an association that quietly orphans rows. rubycritic scores the file's shape; it never tells you the query is non-deterministic or the callback races the transaction.
+The model reads fine, but the *ActiveRecord usage* is wrong or unsafe. This is the most distinctly-Rails weapon — generic agents get the syntax right and the semantics wrong: a side effect in the callback that fires before the row commits, a "first" record that's whatever the database happened to return, an association that quietly orphans rows. rubycritic scores the file's shape; it never tells you the query is non-deterministic or the callback races the transaction.
 
-Apply it to `app/models/**/*.rb` and the query-heavy code in the hotspot files. This pairs with `arsenal/code-quality.md` — that lens owns *structure* (fat models, N+1 hotspots, `default_scope`, callback-driven *workflows*); this one owns *correctness and integrity* of the ActiveRecord calls themselves. Distilled from the Rails guides and the idiomatic patterns in the `activerecord-patterns` rails-skill.
+Apply it to `app/models/**/*.rb` and the query-heavy code in the hotspot files. This pairs with `arsenal/code-quality.md` — that weapon owns *structure* (fat models, N+1 hotspots, `default_scope`, callback-driven *workflows*); this one owns *correctness and integrity* of the ActiveRecord calls themselves. Distilled from the Rails guides and the idiomatic patterns in the `activerecord-patterns` rails-skill.
 
 ## Side effects in `after_save` instead of `after_commit`
 
@@ -106,4 +106,4 @@ Rank by what the misuse actually costs:
 - **Missing `dependent:` and integrity-free polymorphism** are data-integrity findings — medium, higher when the orphaned rows are PII or money (lingering data that an account deletion should have erased is also a privacy finding — cross-check `arsenal/logging.md`/compliance).
 - **`exists?` and `find_each`** are performance findings — low by default, but `find_each` on a known-large table is a real OOM risk: rank it up when the table is big.
 
-Remedies are the idioms themselves (no gem to install): `after_commit` with an `on:`/`if:` guard; explicit `order` or `find_by`; an explicit `dependent:`; separate FKs or `delegated_type`; `exists?`; `find_each`/`pluck`. For soft delete, use `discard` rather than a `default_scope` (pairs with the `default_scope` finding in `arsenal/code-quality.md`). Apply both lenses to model hotspots: this one for correctness, code-quality for structure.
+Remedies are the idioms themselves (no gem to install): `after_commit` with an `on:`/`if:` guard; explicit `order` or `find_by`; an explicit `dependent:`; separate FKs or `delegated_type`; `exists?`; `find_each`/`pluck`. For soft delete, use `discard` rather than a `default_scope` (pairs with the `default_scope` finding in `arsenal/code-quality.md`). Apply both weapons to model hotspots: this one for correctness, code-quality for structure.

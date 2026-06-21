@@ -1,4 +1,4 @@
-# Lens: Web Hardening
+# Weapon: Web Hardening
 
 Production configuration the Rails Security Guide mandates and no engine meaningfully checks. The files to read are few and cheap: `config/environments/production.rb`, `config/initializers/` (CSP, session store, filter parameters), `config/routes.rb` (mounted dashboards), `ApplicationController`. A vibecoded app ships with whatever the generator left — including everything that was generated *commented out*.
 

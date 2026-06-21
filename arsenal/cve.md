@@ -1,6 +1,6 @@
-# Lens: Dependency & Runtime CVEs
+# Weapon: Dependency & Runtime CVEs
 
-bundler-audit and ruby_audit produce the raw list; this lens turns it into triaged findings. The engines compare versions against ruby-advisory-db — they cannot tell whether a vulnerability is *reachable* in this app, and they cannot see advisories the database hasn't absorbed. Both jobs land here.
+bundler-audit and ruby_audit produce the raw list; this weapon turns it into triaged findings. The engines compare versions against ruby-advisory-db — they cannot tell whether a vulnerability is *reachable* in this app, and they cannot see advisories the database hasn't absorbed. Both jobs land here.
 
 Honesty first: an empty engine result means "no known advisories in ruby-advisory-db", never "dependencies are secure". Phrase the report accordingly.
 

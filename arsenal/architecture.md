@@ -1,8 +1,8 @@
-# Lens: Architectural Boundaries
+# Weapon: Architectural Boundaries
 
-The structural rules that keep layers from bleeding into each other — dependency *direction*, not dependency *count*. rubycritic measures the complexity inside a file; it never tells you a model reached up into a controller, or that two namespaces quietly became one unit. This lens reads the **visible edges** between layers — constant references, inheritance, `include`/`extend`, method sends and definitions — and flags the ones that point the wrong way.
+The structural rules that keep layers from bleeding into each other — dependency *direction*, not dependency *count*. rubycritic measures the complexity inside a file; it never tells you a model reached up into a controller, or that two namespaces quietly became one unit. This weapon reads the **visible edges** between layers — constant references, inheritance, `include`/`extend`, method sends and definitions — and flags the ones that point the wrong way.
 
-Distilled from the techniques of the **archspec** gem. The gem enforces an architecture the team *declared* in a DSL; this lens *infers* the violations by reading source, so it works on a repo with no declared spec. The one archspec rule that does **not** translate is "this directory must stay empty" (`must_be_empty`) — banning a whole category of object depends on a convention the team declared, which a zero-config audit can't know. Everything below is detectable without a spec.
+Distilled from the techniques of the **archspec** gem. The gem enforces an architecture the team *declared* in a DSL; this weapon *infers* the violations by reading source, so it works on a repo with no declared spec. The one archspec rule that does **not** translate is "this directory must stay empty" (`must_be_empty`) — banning a whole category of object depends on a convention the team declared, which a zero-config audit can't know. Everything below is detectable without a spec.
 
 Apply it to the `app/` layer folders (`models`, `controllers`, `services`, `jobs`, `lib/`) and the hotspot files. This overlaps `arsenal/code-quality.md` on "logic in the wrong layer" — that file owns *altitude and simplification*; this one owns *direction and cycles*.
 

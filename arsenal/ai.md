@@ -1,4 +1,4 @@
-# Lens: AI / LLM Integration
+# Weapon: AI / LLM Integration
 
 LLM features bolted onto a Rails app — a chat endpoint, a "summarize this", a RAG search, an agent with tools. Two arrival paths, same risks: a vibecoded app that shipped with an LLM from day one, and a legacy app that wired a model into code never designed for untrusted input or outbound calls to a third party. The engines don't model this at all — Brakeman can't tell a string came from a model, and no scanner reads a prompt. Read `app/services/`, `app/jobs/`, `lib/`, the controllers behind chat/completion endpoints, and any view that renders model output — anywhere `OpenAI`, `Anthropic`, `RubyLLM`, `Langchain`, `raix`, or a raw `Faraday`/`Net::HTTP` call to `api.openai.com`/`api.anthropic.com` appears.
 
@@ -24,7 +24,7 @@ client.chat(messages: [
 
 ## Improper output handling (LLM05) — the highest-yield check here
 
-- **Model output rendered with `raw` / `html_safe` / `<%==`** — `raw(@completion)` or `markdown(@answer).html_safe` is stored XSS: the model emits `<script>` because a user told it to, and the view trusts it. Brakeman won't flag this — it can't tell the string originated from an LLM. This is the confirmable finding in this lens; name the view and the sink.
+- **Model output rendered with `raw` / `html_safe` / `<%==`** — `raw(@completion)` or `markdown(@answer).html_safe` is stored XSS: the model emits `<script>` because a user told it to, and the view trusts it. Brakeman won't flag this — it can't tell the string originated from an LLM. This is the confirmable finding in this weapon; name the view and the sink.
 - **Model output rendered as markdown without sanitization** — Redcarpet without `::Safe`, CommonMarker without `:SAFE` (pairs with `arsenal/hardening.md`).
 - **Model output piped into a dangerous sink** — `eval`, `send`, `constantize`, `system`/backticks, raw SQL, or `redirect_to(model_output)` (open redirect). An "agent" that writes code or SQL and then runs it is the worst case.
 - Remedy: treat model output exactly like raw user input — escape by default, sanitize markdown with the safe renderer, and never feed it to a code/SQL/command sink without validation.

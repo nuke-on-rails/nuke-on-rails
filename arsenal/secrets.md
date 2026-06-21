@@ -1,4 +1,4 @@
-# Lens: Committed Secrets
+# Weapon: Committed Secrets
 
 API keys pasted into code and key files committed to git — alongside IDOR, the signature mistake of unreviewed AI-generated apps. No engine in the pipeline covers this; the highest-signal checks are deterministic and need no extra tooling.
 
@@ -17,7 +17,7 @@ git log --diff-filter=D --name-only --format= | sort -u | grep -E 'master\.key|\
 ## Code reading (on initializers, config, and hotspot files)
 
 - Hardcoded credentials: `sk_live_`/`sk-` (Stripe/OpenAI), `AKIA` (AWS), Twilio SIDs, SMTP passwords, JWT secrets, webhook signing secrets — especially in `config/initializers/` and service classes.
-- Devise `pepper`/`secret_key` inline (the authentication lens checks this too).
+- Devise `pepper`/`secret_key` inline (the authentication weapon checks this too).
 - Secrets in seeds, fixtures, or `database.yml` with production credentials.
 - Secrets baked into a `Dockerfile` / `docker-compose.yml` — an `ENV`/`ARG` holding a real secret, or a `COPY` of a key file. Image layers preserve it forever, recoverable even if a later layer deletes it. Rails 8 ships a `Dockerfile` by default, so this surface is common.
 - `ENV.fetch("X", "actual-secret-as-fallback")` — the fallback ships the secret.
