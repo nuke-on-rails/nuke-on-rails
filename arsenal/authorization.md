@@ -15,54 +15,139 @@ Apply it to every controller that touches user-owned or money-related data, plus
 **IDOR — the number one finding in unreviewed Rails apps:**
 
 - `Model.find(params[:id])` on user-owned data, instead of scoping through ownership: `current_user.orders.find(...)`. The canonical critical case: a payments/orders/invoices controller where changing the URL id reads someone else's record.
+
+  ```ruby
+  @invoice = Invoice.find(params[:id])               # Problem — any logged-in user reads any invoice by id
+  @invoice = current_user.invoices.find(params[:id]) # Fix — scoped to the owner; an unowned id 404s
+  ```
 - Scoping on `show` but not on `update`/`destroy` (or vice versa) — auditors check the read path and forget the write path.
+
+  ```ruby
+  def update = Order.find(params[:id]).update(order_params)               # Problem — write path unscoped
+  def update = current_user.orders.find(params[:id]).update(order_params) # Fix — scope every action alike
+  ```
 - IDOR in nested or non-obvious params: `params[:order_id]` inside a different controller, ids accepted in POST bodies, ids in API serializer links.
+
+  ```ruby
+  LineItem.find(params[:line_item_id])  # Problem — id in a nested/POST param, unscoped
+  current_user.orders.find(params[:order_id]).line_items.find(params[:line_item_id])  # Fix — via the owner
+  ```
 - Sequential integer ids make IDOR trivially *discoverable*; UUIDs reduce discoverability but do **not** fix the vulnerability — never accept "we use UUIDs" as the remedy.
-
-```ruby
-# Problem — IDOR: any logged-in user reads any invoice by changing the id in the URL
-@invoice = Invoice.find(params[:id])              # loaded by id alone, not scoped to the requester
-
-# Fix — scope through ownership; an unowned id now raises RecordNotFound (404), not a leak
-@invoice = current_user.invoices.find(params[:id])
-```
 
 **Missing or bypassed authorization:**
 
 - Actions with authentication (`authenticate_user!`) but no *authorization* — logged-in is not allowed-to.
+
+  ```ruby
+  authenticate_user!; Post.find(params[:id]).destroy      # Problem — logged in ≠ allowed; anyone deletes any post
+  authorize(@post = Post.find(params[:id])); @post.destroy # Fix — Pundit checks PostPolicy#destroy?
+  ```
 - Admin functionality guarded only by obscurity: an `/admin` namespace with no role check, or a `before_action` checking `params` instead of the session user.
+
+  ```ruby
+  namespace(:admin) { resources :users }   # Problem — /admin reachable by anyone, no role check
+  authenticate(:user, ->(u) { u.admin? }) { namespace(:admin) { resources :users } }  # Fix — gate on role
+  ```
 - **Records leaked through form helpers**: a `collection_select`/dropdown populated with `Category.all` instead of `policy_scope(Category)` (or `current_user.categories`) exposes every record's existence right in the rendered page — an authorization leak no static scanner sees. Check select boxes and association pickers on user-facing forms.
+
+  ```ruby
+  collection_select :category_id, Category.all            # Problem — exposes every category's existence
+  collection_select :category_id, policy_scope(Category)  # Fix — only what the user may see
+  ```
 - **Cache keys not scoped to the requester**: `Rails.cache.fetch("dashboard") { current_user.dashboard }`, or a fragment `<% cache "sidebar" %>` wrapping per-user content, serves the first user's data to everyone who hits it next — a cross-user leak no scanner sees. Any cache (fragment or low-level) around user-specific data must include the user/account in the key (`[current_user, ...]`).
+
+  ```ruby
+  Rails.cache.fetch("dashboard") { current_user.dashboard }                 # Problem — one user's data to everyone
+  Rails.cache.fetch([current_user, :dashboard]) { current_user.dashboard }  # Fix — keyed per user
+  ```
 - Authorization enforced in the **view** (hiding the button) but not in the controller — the request still works via curl.
+
+  ```ruby
+  # Problem — the view hides the button, but `def destroy = @post.destroy` still runs via curl
+  # Fix — enforce in the controller too: `authorize @post` before destroying
+  ```
 - Role/permission fields reachable through mass assignment: `permit(:role)`, `permit!`, or `update(params[:user])` on a model with `admin`/`role` columns. Brakeman flags some of this; confirm the semantic cases it can't.
+
+  ```ruby
+  params.require(:user).permit(:email, :role)   # Problem — user can set role: "admin"
+  params.require(:user).permit(:email)          # Fix — never permit privilege columns from params
+  ```
 - **`accepts_nested_attributes_for` without ownership checks** — nested params let a user update or delete child records by id (`comments_attributes: [{id: 999, ...}]`) without the controller ever verifying the child belongs to the parent they own. A classic IDOR-through-nesting that static analysis misses: confirm the parent is loaded through `current_user` and that permitted nested ids are re-scoped.
+
+  ```ruby
+  Post.find(params[:id]).update(post_params)               # Problem — nested comment ids unscoped to the owner
+  current_user.posts.find(params[:id]).update(post_params) # Fix — load the parent through ownership
+  ```
 - **Strong-parameters bypassed by a raw Hash** — `User.new(JSON.parse(params[:user]))` (or any `.new`/`.update` fed a plain Hash built outside `ActionController::Parameters`) sidesteps permit entirely, re-opening mass assignment. Common in hand-written JSON API actions and AI-generated endpoints. Trace every `.new`/`.update`/`.assign_attributes` whose argument isn't a `permit`-ed params object. On Rails 8, the idiomatic, type-safe remedy is `params.expect(user: [:name, :email])` — it raises on the array/hash param-type tricks that slip past `require().permit()`.
+
+  ```ruby
+  User.new(JSON.parse(params[:user]))    # Problem — bypasses permit; mass assignment reopened
+  params.expect(user: [:name, :email])   # Fix (Rails 8) — type-safe allowlist
+  ```
+
 **Structural signals that raise suspicion:**
 
 - `skip_before_action :authenticate_user!` (or pundit skips) with a long `only:`/`except:` list — those lists drift out of date.
+
+  ```ruby
+  skip_before_action :authenticate_user!, except: %i[show index]  # Problem — list drifts; new actions ship public
+  # Fix — default closed: authenticate globally, open only the few public actions explicitly (only:)
+  ```
 - Authorization logic duplicated inline across actions instead of centralized in policies — inconsistency is where the holes live.
+
+  ```ruby
+  redirect_to(root_path) unless @post.author == current_user  # Problem — copy-pasted per action, drifts
+  authorize @post                                             # Fix — one PostPolicy#update?, enforced in one place
+  ```
 - Webhooks and internal/API endpoints exempted from CSRF and auth "because it's internal", with no signature verification in its place.
+
+  ```ruby
+  skip_before_action :verify_authenticity_token   # Problem — "internal", no signature check in its place
+  # Fix — verify the signature instead (see arsenal/api.md)
+  ```
 
 ## Multi-tenant isolation (cross-tenant IDOR)
 
 In a multi-tenant app (SaaS with `account`/`organization`/`workspace` scoping) the worst finding isn't one user reading another user's row — it's one *tenant* reading another tenant's entire dataset. The signal is always the same: isolation that rests on developer discipline per query rather than a structural guarantee. One forgotten `where(account_id:)` is the whole breach.
 
 - **Tenant resolved from a request-controlled value instead of the session.** Tenant taken from `params`, a request header, or a `Host`/subdomain the client sets — `Current.tenant = Account.find(params[:account_id])` — lets an attacker simply name someone else's tenant. The tenant must come from the authenticated session (`current_user.account`), never from input.
+
+  ```ruby
+  ActsAsTenant.current_tenant = Account.find(params[:account_id])  # Problem — attacker names any account
+  set_current_tenant(current_user.account)                         # Fix — tenant from the authenticated session
+  ```
 - **Per-query scoping instead of a default guarantee.** Hand-written `where(account: current_account)` on every query is one missed call away from a leak — and the miss is invisible in review. Look for the *absence* of a structural guarantee (`acts_as_tenant`, `ActsAsTenant.current_tenant`, a `default_scope`, or a multitenant gem) on tenant-owned models. A bare `Project.find(params[:id])` in a tenant app is a cross-tenant IDOR.
+
+  ```ruby
+  Project.where(account_id: current_account.id).find(params[:id])  # Problem — one forgotten scope = leak
+  Project.find(params[:id])  # Fix — with acts_as_tenant, every query is implicitly scoped to the tenant
+  ```
 - **`unscoped` / `default_scope` override on a reachable path.** `unscoped`, `Model.default_scoped(false)`, or a `with_tenant`/admin scope used inside a user-facing action defeats the isolation that exists elsewhere — grep for it and confirm none sit on a request path.
+
+  ```ruby
+  Project.unscoped.find(params[:id])           # Problem — defeats tenant isolation on a request path
+  current_account.projects.find(params[:id])   # Fix — stay within the tenant scope
+  ```
 - **Child/join tables without their own tenant column.** Scoping the parent (`current_account.projects`) but loading a child directly (`Task.find(params[:id])`, `comments_attributes` by id) when the child carries no `account_id` of its own — the child is reachable across tenants even though the parent is locked down.
+
+  ```ruby
+  Task.find(params[:id])  # Problem — child reachable cross-tenant (no account_id of its own)
+  current_account.projects.find(params[:project_id]).tasks.find(params[:id])  # Fix — through the scoped parent
+  ```
 - **Background jobs and callbacks that lose tenant context.** `Current.tenant`/`ActsAsTenant.current_tenant` is request-local; an ActiveJob/Sidekiq worker that doesn't re-establish it runs **unscoped** and can read or mutate every tenant's data. Confirm the tenant is passed as a job argument and re-set in `perform`, not assumed.
+
+  ```ruby
+  def perform(id) = Project.find(id).archive!   # Problem — runs unscoped, reaches every tenant's data
+  def perform(account_id, id)                   # Fix — pass the tenant and re-establish it
+    ActsAsTenant.with_tenant(Account.find(account_id)) { Project.find(id).archive! }
+  end
+  ```
 - **Global lookups that skip the tenant entirely** — `find_by(email:)` for login, token lookups, or `find_by!(slug:)` that match across tenants when they should be scoped within one.
 
-```ruby
-# Problem — tenant taken from a request param, and isolation rests on per-query discipline
-ActsAsTenant.current_tenant = Account.find(params[:account_id])   # attacker names any account
-@projects = Project.where(account_id: params[:account_id])        # one forgotten scope = full leak
-
-# Fix — tenant from the authenticated session, isolation enforced structurally
-set_current_tenant(current_user.account)   # acts_as_tenant scopes every query automatically
-@projects = Project.all                     # implicitly scoped to the current tenant
-```
+  ```ruby
+  User.find_by(email: params[:email])                    # Problem — matches across all tenants
+  current_account.users.find_by(email: params[:email])   # Fix — scoped within the tenant
+  ```
 
 State the blast radius explicitly in the report: cross-tenant access is "any customer can read/modify every other customer's data", which sits at the very top alongside IDOR on money paths.
 
