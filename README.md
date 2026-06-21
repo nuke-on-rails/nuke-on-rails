@@ -192,6 +192,15 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 </details>
 
 <details>
+<summary><strong><a href="arsenal/jobs.md">Background jobs</a></strong></summary>
+
+* Non-idempotent jobs that repeat the side effect on retry (double-charge)
+* Secrets / PII in job arguments (persisted in the queue store, shown on the dashboard)
+* Records passed instead of ids (stale data, deserialization failures)
+
+</details>
+
+<details>
 <summary><strong><a href="arsenal/activerecord.md">ActiveRecord correctness</a></strong></summary>
 
 * Side effects in `after_save` that race the transaction (belongs in `after_commit`)
