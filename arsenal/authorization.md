@@ -73,6 +73,15 @@ Apply it to every controller that touches user-owned or money-related data, plus
   def subscribed; stream_for Room.find(params[:id]); end               # Problem — any user streams any room by id
   def subscribed; stream_for current_user.rooms.find(params[:id]); end # Fix — scoped to the subscriber's rooms
   ```
+- **Attachments served without per-request authorization**: Active Storage's default URLs (`url_for(doc.file)`, `rails_blob_path`) are *signed* (unguessable) but **not scoped to a user** — they're bearer URLs, valid to anyone who obtains them (a leaked Referer, a shared link, a log line) and effectively permanent. For private or tenant-owned files (invoices, IDs, contracts) the access control becomes "knows the URL", not "is authorized" — an IDOR on attachments. Serve sensitive files through a controller that authorizes via the owning record.
+
+  ```erb
+  <%= url_for(document.file) %>  <%# Problem — signed but unauthorized; a leaked URL grants anyone access %>
+  ```
+  ```ruby
+  # Fix — authorize through ownership, then serve (short-TTL URL or send_data)
+  def show; @doc = current_user.documents.find(params[:id]); redirect_to @doc.file.url(expires_in: 5.minutes); end
+  ```
 - Authorization enforced in the **view** (hiding the button) but not in the controller — the request still works via curl.
 
   ```ruby
