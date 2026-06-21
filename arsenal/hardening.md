@@ -101,6 +101,12 @@ end
 - **Public storage bucket** — `public: true` in `config/storage.yml` disables URL signing: every uploaded file is world-readable forever to anyone who learns the URL. Use `public: false` + short-TTL signed URLs for user content.
 - `send_file` / `send_data` with user-influenced paths or filenames (Brakeman flags some; confirm the rest).
 - **User-supplied markdown/HTML rendered unsafely** — `Redcarpet::Render::HTML` (instead of `::Safe`) on user content, `filter_html: false`, CommonMarker without `:SAFE`, or `sanitize` with an over-broad tag allowlist: stored XSS that Brakeman doesn't reliably catch at the library-config level.
+- **Search highlight rendered with `html_safe`** — `pg_search_highlight.html_safe` (Postgres `ts_headline` under the hood) wraps matches in `<mark>` but does **not** escape the surrounding document text, so user content containing `<script>` renders. The `<mark>` markup being app-controlled does not make the content safe — sanitize the highlight, allowing only `<mark>`.
+
+  ```erb
+  <%= post.pg_search_highlight.html_safe %>                  <%# Problem — <mark> is safe, the content around it is not → XSS %>
+  <%= sanitize(post.pg_search_highlight, tags: %w[mark]) %>  <%# Fix — render only the highlight markup %>
+  ```
 
 ```ruby
 # Problem — no content-type allowlist: a user uploads .svg/.html served from your domain → stored XSS
