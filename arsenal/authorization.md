@@ -94,6 +94,13 @@ Apply it to every controller that touches user-owned or money-related data, plus
   params.require(:user).permit(:email, :role)   # Problem — user can set role: "admin"
   params.require(:user).permit(:email)          # Fix — never permit privilege columns from params
   ```
+- **Value/state fields reachable through mass assignment** — the same flaw, but the leaked column isn't a privilege bit, it's economic or trust state: `credits`/`balance`/`wallet` (money), `plan`/`subscription_status`/`tier` (paid entitlement), `verified`/`approved`/`kyc_status` (trust), `stripe_customer_id` (billing-identity hijack). These are **server-authority columns** — they may only change via server logic (a payment webhook, an admin action), never from a user-facing `permit`. This case is the one reviewers miss, because **auth and ownership both pass and it still leaks**: a valid token on a correctly ownership-scoped update (`current_user.update(...)`) hands the attacker free credits if the field is permitted. Don't pattern-match only on `role`/`admin`; scan every `permit`/`update`/`assign_attributes` for any column the user shouldn't be able to set the value of.
+
+  ```ruby
+  current_user.update(params.permit(:name, :credits))  # Problem — ownership checked, token valid, STILL leaks credits
+  current_user.update(params.permit(:name))            # Fix — value/state columns never enter a user-facing permit;
+                                                        # credits change only in the payment webhook, server-side
+  ```
 - **`accepts_nested_attributes_for` without ownership checks** — nested params let a user update or delete child records by id (`comments_attributes: [{id: 999, ...}]`) without the controller ever verifying the child belongs to the parent they own. A classic IDOR-through-nesting that static analysis misses: confirm the parent is loaded through `current_user` and that permitted nested ids are re-scoped.
 
   ```ruby

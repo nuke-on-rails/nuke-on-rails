@@ -91,7 +91,7 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 
 * Records loaded by id without ownership scoping (the canonical payments / orders / invoices case)
 * Authorization missing where authentication exists (logged-in is not allowed-to)
-* Mass assignment: `permit!`, role escalation, nested attributes, raw-Hash bypass
+* Mass assignment: `permit!`, role escalation, value/state fields (`credits`/`plan`/`stripe_customer_id`), nested attributes, raw-Hash bypass
 * Records leaked through form dropdowns and serializers
 * Cross-tenant leaks in multi-tenant apps; routes exposing actions that shouldn't be public
 
