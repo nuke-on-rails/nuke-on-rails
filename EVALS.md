@@ -45,6 +45,7 @@ RailsGoat predates several of our weapons and doesn't plant these. Validate them
 - `activerecord.md` — a side effect in `after_save`; a `where(...).first` with no order; a `has_many` without `dependent:`.
 - `authorization.md` (value-field mass assignment) — RailsGoat plants `admin`/`role` escalation but not the **economic** case: a controller that does `current_user.update(params.permit(:name, :credits))` — ownership correct, token valid, yet `credits` (a server-authority column) is permitted. The report must flag it; a skill that only catches `role`/`admin` misses the more common SaaS exploit (free credits / plan upgrade).
 - `ai.md` — a chat endpoint that interpolates `params` into a prompt and renders the response with `raw`.
+- `supply-chain.md` — a `package.json` with a `postinstall` that fetches and executes; an `eval` of an HTTP-fetched string; a base64 blob decoded and evaled in an initializer.
 
 These fixtures live in the reviewer's scratch directory, not the repo (the skill is zero-dependency and ships no app code).
 

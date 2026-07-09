@@ -240,6 +240,16 @@ Coverage maps to the **OWASP Top 10 2025**. Each area is a weapon in the [arsena
 * Secrets in seeds, fixtures, or `database.yml`; secret-as-ENV-fallback
 
 </details>
+
+<details>
+<summary><strong><a href="arsenal/supply-chain.md">Supply chain & trojaned code</a></strong></summary>
+
+* `eval` of HTTP-fetched payloads (the trojaned take-home-assessment pattern)
+* npm `preinstall`/`postinstall` hooks that run code the moment anyone installs
+* Obfuscated blobs: base64/hex strings decoded and executed, minified code with no build step
+* Runtime "config" fetched from paste-bin endpoints (a remote kill-switch the author controls)
+
+</details>
 The community grows the catalog: a new check is a markdown PR, no code required — see [CONTRIBUTING.md](CONTRIBUTING.md) and copy [`templates/_WEAPON.md`](templates/_WEAPON.md) to start.
 
 ## How it works

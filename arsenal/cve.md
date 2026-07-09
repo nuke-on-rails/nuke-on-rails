@@ -30,6 +30,8 @@ pin "react", to: "https://ga.jspm.io/npm:react@18/index.js"  # Problem — runti
 # Fix — vendor it: `bin/importmap pin react` downloads to vendor/javascript/ and serves it from your app
 ```
 
+Both checks judge *source trust* — whether the place a dependency comes from can be hijacked. Whether code already in the repo is itself malicious (eval of fetched payloads, npm install hooks) is `arsenal/supply-chain.md`.
+
 ## Reachability triage
 
 Installed is not exploitable. For each advisory, ask whether the app actually exercises the vulnerable component:
